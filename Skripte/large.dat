@@ -1,0 +1,3 @@
+recordcount=100000000
+threadcount=10
+target=10

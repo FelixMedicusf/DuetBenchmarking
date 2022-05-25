@@ -68,17 +68,8 @@ resource "google_compute_instance" "ycsb" {
     yes | sudo apt install default-jdk
     sudo apt update 
     yes | sudo apt install default-jre   
-
-    # Install Python 2 which is required by YCSB
-    # sudo apt install python2 
-  
-
     # Create symbolic link (python -> python2.7)
     sudo ln -s /usr/bin/python2.7 /usr/bin/python 
-    # cd ~
-    # sudo curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-0.17.0.tar.gz
-    # sudo tar xfvz ycsb-0.17.0.tar.gz
-    # cd ycsb-0.17.0
     SCRIPT
 
   }

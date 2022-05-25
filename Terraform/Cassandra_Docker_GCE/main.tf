@@ -51,27 +51,6 @@ resource "google_compute_instance" "cassandra" {
     startup-script=<<SCRIPT
     curl -sSL https://get.docker.com/ | sh
 
-    # --name -> name Container "cassandra-instance-1-container"
-    # --network -> attach container to created network ("cassandra-network")
-    # -d -> run detachted (Run in background)
-    # -p 9042:9042 -p 7000:7000 -> expose ports <host-port>:containerPort
-    #   port 9042 for client interaction & port 7000 for node communication
-    # -v cassandraData:/data -> share /data directory with cassandra folder on host
-    # Set cassandra.conf values:
-    # -Dcassandra.config=/path/to/cassandra.yaml
-    # Must create Keyspace in Cassandra to interact with YCSB
-    # CREATE KEYSPACE usertable WITH replication = {'class' :'SimpleStrategy', 'replication_factor' : 1};
-    
-    
-    # cd ~ && echo "echo "CREATE KEYSPACE usertable WITH replication = {'class' :'SimpleStrategy', 'replication_factor' : 1};" | cqlsh" > containerScript.sh
-    
-    # sudo docker network create cassandra-network
-    # sudo docker run --name cassandra-instance-1-container --network cassandra-network -v /docker/cassandra/instance-1:/var/lib/cassandra -p 9042:9042 -p 7000:7000 -d cassandra
-    # sudo docker run --name cassandra-instance-2-container -v /docker/cassandra/instance-2:/var/lib/cassandra -p 9043:9042 -p 7001:7000 -d cassandra
-
-    # Creating Keyspace "usertable" as required by YCSB
-    # sudo docker exec cassandra-instance-1-container ~/containerScript.sh
-    # sudo docker exec cassandra-instance-1-container bin/sh -c "echo 'USE usertable' | cqlsh"
     SCRIPT
     
   }

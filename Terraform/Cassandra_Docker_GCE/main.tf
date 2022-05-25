@@ -6,9 +6,10 @@ provider "google" {
 
 module "node" {
   source = "./modules/VM_Node"
+  for_each=toset(var.nodes)
   network = google_compute_network.cassandra_network.self_link
-  instance-name = var.nodes[0]
-  instance-number = "1"
+  instance-name = each.value
+  instance-number = each.key
   depends_on=[google_compute_network.cassandra_network]
 
 }

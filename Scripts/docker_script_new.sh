@@ -103,7 +103,7 @@ cmd="sudo docker run --network cassandra-network-a --rm\
                         -e CQLVERSION=3.4.5\
                         nuvo/docker-cqlsh"
 
-gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
+gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
 
 # Show active Docker Container
 printf "Active Docker Container in VM: $instanceName\n"

@@ -30,15 +30,17 @@ gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker network c
 # Cassandra uses port 7000 for Internode Communication, 7001 for TLS internode communication, 9160 as Thrift Client API, and 9042 as CQL native transport port 
 # -p 8080:80 --> Map TCP port 80 in the container to port 8080 on the Docker host. -p <host_port>:<container_port>
 
+
+cmd="sudo docker run --name cassandra-container-1a -d --rm \
+                        -e CASSANDRA_BROADCAST_ADDRESS=[$nodeIp]
+                        --hostname cassandra-container-1a \
+                        --network cassandra-network-a \
+                        -v /docker/cassandra/container-1a:/var/lib/cassandra \
+                        -p 9042:9042 \
+                        -p 7000:7000 \
+                        cassandra:latest"
 # Start first Container
-gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --name cassandra-container-1a -d --rm \
-                                                                            -e CASSANDRA_BROADCAST_ADDRESS=[$nodeIp]
-                                                                            --hostname cassandra-container-1a \
-                                                                            --network cassandra-network-a \
-                                                                            -v /docker/cassandra/container-1a:/var/lib/cassandra \
-                                                                            -p 9042:9042 \
-                                                                            -p 7000:7000 \
-                                                                            cassandra:latest"
+gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
 
 
 echo "Started second Container (1a) on port 7000 and 9042"

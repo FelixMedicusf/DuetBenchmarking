@@ -112,4 +112,4 @@ gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker ps'
 done
 
 printf "Cluster a Info:\n"
-gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra nodetool status'
+gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-1a nodetool status'

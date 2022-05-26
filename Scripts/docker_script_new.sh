@@ -32,13 +32,14 @@ gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker network c
 
 
 cmd="sudo docker run --name cassandra-container-1a -d --rm\
-                        -e CASSANDRA_BROADCAST_ADDRESS=[$nodeIp]\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeIp\
                         --hostname cassandra-container-1a\
                         --network cassandra-network-a\
                         -v /docker/cassandra/container-1a:/var/lib/cassandra\
                         -p 9042:9042\
                         -p 7000:7000\
                         cassandra:latest"
+
 # Start first Container
 gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
 
@@ -59,8 +60,8 @@ fi
 if [[ $i -ne 1 ]]; then 
 # Start first Container
 cmd="sudo docker run --name cassandra-container-1a -d --rm\
-                        -e CASSANDRA_BROADCAST_ADDRESS=[$nodeIp]\
-                        -e CASSANDRA_SEEDS=[$seedIp]\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeIp\
+                        -e CASSANDRA_SEEDS=$seedIp\
                         --hostname cassandra-container-1a\
                         --network cassandra-network-a\
                         -v /docker/cassandra/container-1a:/var/lib/cassandra\

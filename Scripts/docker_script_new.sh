@@ -8,7 +8,7 @@ nodeNumber="$(echo -n $instances | grep -Fo $value | wc -l)"
 instanceGroupName=${name:-cassandra-node}
 read  -p "Enter Instance group name in which you want to deploy Cassandra Docker Container Network: " instanceGroupName
 
-for (( i=0; i < $nodeNumber; ++i ))
+for (( i=1; i <= $nodeNumber; ++i ))
 do 
 instanceName="${instanceGroupName}-$i"
 nodeIp="$(gcloud compute instances describe $instanceName --zone='europe-west1-b' --format='get(networkInterfaces[0].accessConfigs[0].natIP)')"
@@ -52,7 +52,7 @@ echo "Started second Container (1a) on port 7000 and 9042"
 #                                                                             -p 9043:9042 \
 #                                                                             -p 7001:7000 \
 #                                                                             cassandra:3.11"
-# fi
+fi
 
 if [[ $i -ne 1 ]]; then 
 # Start first Container
@@ -79,7 +79,7 @@ echo "Started second Container (1a) on port 7000 and 9042"
 #                                                                             -p 9043:9042 \
 #                                                                             -p 7001:7000 \
 #                                                                             cassandra:3.11"
-# fi 
+fi 
 # echo "Started second Container (1b) on port 7001 and 9043"
 echo "Waiting for Container 1a and 1b to run to load data"
 sleep 30 

@@ -71,7 +71,7 @@ cmd="sudo docker run --name cassandra-container-1a -d --rm\
 
 gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
 
-echo "Started second Container (1a) on port 7000 and 9042"
+echo "Started first Container (1a) on port 7000 and 9042"
 
 # Start second Container
 # gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --name cassandra-container-1b -d --rm \
@@ -83,7 +83,7 @@ echo "Started second Container (1a) on port 7000 and 9042"
 #                                                                             -p 9043:9042 \
 #                                                                             -p 7001:7000 \
 #                                                                             cassandra:3.11"
-fi 
+fi
 # echo "Started second Container (1b) on port 7001 and 9043"
 echo "Waiting for Container 1a and 1b to run to load data"
 sleep 35 
@@ -109,4 +109,4 @@ gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --net
 printf "Active Docker Container in VM: $instanceName\n"
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker ps'
 
-done 
+done

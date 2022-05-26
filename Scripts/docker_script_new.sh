@@ -63,7 +63,6 @@ cmd="sudo docker run --name cassandra-container-1a -d --rm\
                         -e CASSANDRA_BROADCAST_ADDRESS=$nodeIp\
                         -e CASSANDRA_SEEDS=$seedIp\
                         --hostname cassandra-container-1a\
-                        --network cassandra-network-a\
                         -v /docker/cassandra/container-1a:/var/lib/cassandra\
                         -p 9042:9042\
                         -p 7000:7000\
@@ -106,7 +105,7 @@ cmd="sudo docker run --network cassandra-network-a --rm\
 gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
 
 # Show active Docker Container
-echo "Active Docker Container in VM: $instanceName\n"
+printf "Active Docker Container in VM: $instanceName\n"
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker ps'
 
 done 

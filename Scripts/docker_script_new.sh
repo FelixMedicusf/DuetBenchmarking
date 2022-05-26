@@ -112,5 +112,5 @@ printf "Active Docker Container in VM: $instanceName\n"
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker ps'
 done
 
-printf "Cluster a Info:\n"
+printf "Nodes of Cluster A:\n"
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-1a nodetool status'

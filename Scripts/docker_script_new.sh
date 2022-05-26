@@ -19,8 +19,9 @@ echo $instanceName
 gcloud compute scp --zone europe-west1-b ~/Documents/data.cql $instanceName:~
 # Create Docker Network a and b 
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker network create cassandra-network-a'
-# gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker network create cassandra-network-b'
+gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker network create cassandra-network-b'
 
+# starting the first node requires a different cassandra configuration
 if [[ $i -eq 1 ]];then
 
 seedIp=$nodeIp
@@ -33,6 +34,7 @@ seedIp=$nodeIp
 
 cmd="sudo docker run --name cassandra-container-1a -d --rm\
                         -e CASSANDRA_BROADCAST_ADDRESS=$nodeIp\
+                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 1'\
                         --hostname cassandra-container-1a\
                         --network cassandra-network-a\
                         -v /docker/cassandra/container-1a:/var/lib/cassandra\
@@ -46,22 +48,28 @@ gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
 
 echo "Started second Container (1a) on port 7000 and 9042"
 
+cmd="sudo docker run --name cassandra-container-1b -d --rm\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeIp\
+                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 2'\
+                        --hostname cassandra-container-1b\
+                        --network cassandra-network-b\
+                        -v /docker/cassandra/container-1b:/var/lib/cassandra\
+                        -p 9043:9042\
+                        -p 7001:7000\
+                        cassandra:3.11"
+
 # Start second Container
-# gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --name cassandra-container-1b -d --rm \
-#                                                                             -e CASSANDRA_BROADCAST_ADDRESS=[$nodeIp]
-#                                                                             --hostname cassandra-container-1b \
-#                                                                             --network cassandra-network-b \
-#                                                                             -v /docker/cassandra/container-1b:/var/lib/cassandra \ 
-#                                                                             -p 9043:9042 \
-#                                                                             -p 7001:7000 \
-#                                                                             cassandra:3.11"
+gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
+
 fi
 
+# for subsequent nodes we need to provide a cassandra seed for nodes to join the cluster
 if [[ $i -ne 1 ]]; then 
 # Start first Container
 cmd="sudo docker run --name cassandra-container-1a -d --rm\
                         -e CASSANDRA_BROADCAST_ADDRESS=$nodeIp\
                         -e CASSANDRA_SEEDS=$seedIp\
+                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 1'\
                         --hostname cassandra-container-1a\
                         --network cassandra-network-a\
                         -v /docker/cassandra/container-1a:/var/lib/cassandra\
@@ -70,42 +78,36 @@ cmd="sudo docker run --name cassandra-container-1a -d --rm\
                         cassandra:latest"
 
 gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
-
 echo "Started first Container (1a) on port 7000 and 9042"
 
+cmd="sudo docker run --name cassandra-container-1b -d --rm\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeIp\
+                        -e CASSANDRA_SEEDS=$seedIp\
+                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 2'\
+                        --hostname cassandra-container-1b\
+                        --network cassandra-network-b\
+                        -v /docker/cassandra/container-1b:/var/lib/cassandra\
+                        -p 9043:9042\
+                        -p 7001:7000\
+                        cassandra:3.11"
 # Start second Container
-# gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --name cassandra-container-1b -d --rm \
-#                                                                             -e CASSANDRA_BROADCAST_ADDRESS=[$nodeIp] \
-#                                                                             -e CASSANDRA_SEEDS=[$seedIp] \
-#                                                                             --hostname cassandra-container-1b \
-#                                                                             --network cassandra-network-b \
-#                                                                             -v /docker/cassandra/container-1b:/var/lib/cassandra \ 
-#                                                                             -p 9043:9042 \
-#                                                                             -p 7001:7000 \
-#                                                                             cassandra:3.11"
+gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
+echo "Started second Container (1b) on port 7001 and 9043"
+
 fi
-# echo "Started second Container (1b) on port 7001 and 9043"
+
+
 echo "Waiting for Container 1a and 1b to run to load data"
 sleep 35 
 
-# Load CQL file into cassandra-container-1b and cassandra-container-1a
-# CAUTION: CQLVERSION must fit to respective Cassandra Version
-# gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker run --network cassandra-network-b --rm \
-#                                                                             -v ~/data.cql:/scripts/data.cql \
-#                                                                             -e CQLSH_HOST=cassandra-container-1b \
-#                                                                             -e CQLSH_PORT=9042 \
-#                                                                             -e CQLVERSION=3.4.4 \ 
-#                                                                             nuvo/docker-cqlsh'
-cmd="sudo docker run --network cassandra-network-a --rm\
-                        -v ~/data.cql:/scripts/data.cql\
-                        -e CQLSH_HOST=cassandra-container-1a\
-                        -e CQLSH_PORT=9042\
-                        -e CQLVERSION=3.4.5\
-                        nuvo/docker-cqlsh"
+# Multiple attempts to load data (keyspace and table) into cassandra-container-1a
+gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
+gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
+gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
 
-gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
-gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
-gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
+# Multiple attempts to load data (keyspace and table) into cassandra-container-1a
+gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1b -e CQLSH_PORT=9042 -e CQLVERSION=3.4.4 nuvo/docker-cqlsh"
+gcloud compute ssh $instanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1b -e CQLSH_PORT=9042 -e CQLVERSION=3.4.4 nuvo/docker-cqlsh"
 
 # Show active Docker Container
 printf "Active Docker Container in VM: $instanceName\n"
@@ -114,3 +116,6 @@ done
 
 printf "Nodes of Cluster A:\n"
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-1a nodetool status'
+
+printf "Nodes of Cluster B:\n"
+gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-1b nodetool status'

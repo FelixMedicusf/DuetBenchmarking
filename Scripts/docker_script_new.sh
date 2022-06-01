@@ -43,7 +43,7 @@ cmd="sudo docker run --name cassandra-container-1a -d --rm\
 
 # Start first Container
 gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
-echo "Started first Container (1a) on port 7000 and 9042 on ${i}. node"
+echo "Started first Container (1a) on port 7000 and 9042 in ${$instanceName}"
 
 cmd="sudo docker run --name cassandra-container-1b -d --rm\
                         -e CASSANDRA_BROADCAST_ADDRESS=$nodeIp\
@@ -57,7 +57,7 @@ cmd="sudo docker run --name cassandra-container-1b -d --rm\
 
 # Start second Container
 gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
-echo "Started second Container (1b) on port 7001 and 9043 on ${i}. node"
+echo "Started second Container (1b) on port 7001 and 9043 in ${$instanceName}"
 
 fi
 
@@ -76,7 +76,7 @@ cmd="sudo docker run --name cassandra-container-1a -d --rm\
                         cassandra:latest"
 
 gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
-echo "Started first Container (1a) on port 7000 and 9042 on ${i}. node"
+echo "Started first Container (1a) on port 7000 and 9042 in ${$instanceName}"
 
 cmd="sudo docker run --name cassandra-container-1b -d --rm\
                         -e CASSANDRA_BROADCAST_ADDRESS=$nodeIp\
@@ -90,7 +90,7 @@ cmd="sudo docker run --name cassandra-container-1b -d --rm\
                         cassandra:3.11"
 # Start second Container
 gcloud compute ssh $instanceName --zone europe-west1-b -- $cmd
-echo "Started second Container (1b) on port 7001 and 9043 on ${i}. node"
+echo "Started second Container (1b) on port 7001 and 9043 in ${$instanceName}"
 
 fi
 

@@ -22,3 +22,4 @@ variable "nodes" {
   type = list(string)
   default = ["cassandra-node-1", "cassandra-node-2", "cassandra-node-3"]
 }
+

@@ -1,5 +1,5 @@
 resource "google_compute_address" "static_ip" {
-  name = var.instance-number
+  name = var.instance-name
 }
 
 resource "google_compute_instance" "cassandra" {

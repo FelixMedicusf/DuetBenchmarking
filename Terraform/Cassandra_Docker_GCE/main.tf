@@ -9,7 +9,6 @@ module "node" {
   for_each=toset(var.nodes)
   network = google_compute_network.cassandra_network.self_link
   instance-name = each.value
-  instance-number = each.key
   depends_on=[google_compute_network.cassandra_network]
 
 }

@@ -35,7 +35,7 @@ firstInstanceName=$currentInstanceName
 
 cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 1'\
-                        -e CASSANDRA_LISTEN_ADDRESS=$nodeInternalIp\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
                         --hostname cassandra-container-${i}a\
                         --network cassandra-network-a\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
@@ -49,7 +49,7 @@ echo "Started first Container (${i}a) on port 7000 and 9042 in ${currentInstance
 
 cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 2'\
-                        -e CASSANDRA_LISTEN_ADDRESS=$nodeInternalIp\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
                         --hostname cassandra-container-${i}b\
                         --network cassandra-network-b\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
@@ -68,7 +68,7 @@ if [[ $i -ne 1 ]]; then
 # Start first Container
 cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -e CASSANDRA_SEEDS=$seedIp\
-                        -e CASSANDRA_LISTEN_ADDRESS=$nodeInternalIp\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
                         -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 1'\
                         --hostname cassandra-container-${i}a\
                         --network cassandra-network-a\
@@ -81,7 +81,7 @@ gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
 echo "Started first Container (${i}a) on port 7000 and 9042 in ${currentInstanceName}"
 
 cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
-                        -e CASSANDRA_LISTEN_ADDRESS=$nodeInternalIp\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
                         -e CASSANDRA_SEEDS=$seedIp\
                         -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 2'\
                         --hostname cassandra-container-${i}b\

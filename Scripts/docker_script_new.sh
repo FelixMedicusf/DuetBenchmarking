@@ -115,7 +115,11 @@ gcloud compute ssh $currentInstanceName --zone europe-west1-b -- 'sudo docker ps
 done
 
 printf "Nodes of Cluster A:\n"
-gcloud compute ssh $firstInstanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-${i}a nodetool status'
+gcloud compute ssh $firstInstanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-1a nodetool status'
 
 printf "Nodes of Cluster B:\n"
-gcloud compute ssh $firstInstanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-${i}b nodetool status'
+gcloud compute ssh $firstInstanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-1b nodetool status'
+
+
+# Interne Ip adressen benutzen als Seed? Cassandra Node erkennt den jeweiligen Port über den Namen des Clusters? 
+# Falls nicht .... Versuchen auf gleichen Host verschiedene Ip-Adressen (vllt. einmal private und einmal public ip)

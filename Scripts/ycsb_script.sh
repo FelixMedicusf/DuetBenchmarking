@@ -27,7 +27,7 @@ gcloud compute ssh $instanceName --zone europe-west1-b -- 'cd ~ && sudo curl -O 
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo tar xfvz ycsb-0.17.0.tar.gz'
 
 
-
+if [ "$CONT" = "y" ];then
 echo "Loading phase cassandra-container-1a"
 gcloud compute ssh $instanceName --zone europe-west1-b -- "cd ~/ycsb-0.17.0 && ./bin/ycsb load cassandra-cql -p hosts=$SUT_IP -p recordcount=50000 -s -P workloads/workloada"
 
@@ -47,7 +47,7 @@ gcloud compute ssh $instanceName --zone europe-west1-b -- "cd ~/ycsb-0.17.0 && .
 echo "Transaction phase cassandra-container-1b"
 gcloud compute ssh $instanceName --zone europe-west1-b -- "cd ~/ycsb-0.17.0 && ./bin/ycsb run cassandra-cql -p hosts=$SUT_IP -p ports=9043 -p recordcount=50000 -s -P workloads/workloada > ~/results_old.dat"
 gcloud compute scp --zone europe-west1-b --recurse ycsb-instance-1:~/results_old.dat ~/Documents/results_old.dat
-
+fi
 # The standard workload parameter files create very small databases. For example, workloada only creates 1000 records. Useful for debugging ....
 # To increase just set the recordcount parameter in load and run phase. 
 

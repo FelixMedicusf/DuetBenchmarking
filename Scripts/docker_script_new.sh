@@ -27,6 +27,7 @@ gcloud compute ssh $currentInstanceName --zone europe-west1-b -- 'sudo docker ne
 if [[ $i -eq 1 ]];then
 
 seedIp=$nodeInternalIp
+seedIpExternal=$nodeExternalIp
 firstInstanceName=$currentInstanceName
 
 # Cassandra uses port 7000 for Internode Communication, 7001 for TLS internode communication, 9160 as Thrift Client API, and 9042 as CQL native transport port 
@@ -102,7 +103,7 @@ sleep 35
 # Multiple attempts to load data (keyspace and table) into cassandra-container-${i}a
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
-gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}a -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
+
 
 # Multiple attempts to load data (keyspace and table) into cassandra-container-${i}b
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}b -e CQLSH_PORT=9042 -e CQLVERSION=3.4.4 nuvo/docker-cqlsh"
@@ -121,5 +122,4 @@ printf "Nodes of Cluster B:\n"
 gcloud compute ssh $firstInstanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-1b nodetool status'
 
 
-# Interne Ip adressen benutzen als Seed? Cassandra Node erkennt den jeweiligen Port über den Namen des Clusters? 
-# Falls nicht .... Versuchen auf gleichen Host verschiedene Ip-Adressen (vllt. einmal private und einmal public ip)
+# Erkennt Cassandra den jeweligen Port über den Namen des Cluster auf der seed_ip? oder immer 7000?

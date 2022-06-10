@@ -18,7 +18,7 @@ gcloud compute scp --zone europe-west1-b ~/Documents/data.cql $cassandraInstance
 # Start first Container
 gcloud compute ssh $cassandraInstanceName --zone europe-west1-b -- 'sudo docker run -d --rm --name cassandra-container-1a --hostname cassandra-container-1a --network cassandra-network-a -v /docker/cassandra/container-1a:/var/lib/cassandra -p 9042:9042 -p 7000:7000 cassandra:latest'
 
-echo "Started second Container (1a) on port 7000 and 9042"
+echo "Started second Container (1a) on port 7005 and 9042"
 echo "Waiting for Container 1a to run to load data"
 sleep 20 
 
@@ -30,7 +30,7 @@ gcloud compute ssh $cassandraInstanceName --zone europe-west1-b -- 'sudo docker 
 # Start second Container
 gcloud compute ssh $cassandraInstanceName --zone europe-west1-b -- 'sudo docker run -d --rm --name cassandra-container-1b --hostname cassandra-container-1b --network cassandra-network-b -v /docker/cassandra/container-1b:/var/lib/cassandra -p 9043:9042 -p 7001:7000 cassandra:3.11'
 
-echo "Started second Container (1b) on port 7001 and 9043"
+echo "Started second Container (1b) on port 7010 and 9043"
 echo "Waiting for Container 1b to run to load data"
 sleep 20 
 

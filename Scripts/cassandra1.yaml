@@ -1,2 +1,0 @@
-# provide -Dcassandra.config=/path/to/cassandra.yaml after image name in a docker run command to configure cassandra container
-cluster_name: 'Cassandra Cluster Version 1'

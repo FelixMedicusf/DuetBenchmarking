@@ -34,66 +34,76 @@ firstInstanceName=$currentInstanceName
 # -p 8080:80 --> Map TCP port 80 in the container to port 8080 on the Docker host. -p <host_port>:<container_port>
 
 
+cd ~ && printf "cluster_name: 'Cassandra Cluster A' \nstorage_port: 7005" > ~/CassandraA.yaml
+cd ~ && printf "cluster_name: 'Cassandra Cluster B' \nstorage_port: 7010" > ~/CassandraB.yaml
+
+# TO DO: Replace -e variables with config file + STORAGE_PORT
 cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
-                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 1'\
-                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
                         --hostname cassandra-container-${i}a\
                         --network cassandra-network-a\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
                         -p 9042:9042\
-                        -p 7000:7000\
-                        cassandra:latest"
+                        -p 7005:7005\
+                        cassandra:latest\
+                        -Dcassandra.config=~/CassandraA.yaml"
 
 # Start first Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
-echo "Started first Container (${i}a) on port 7000 and 9042 in ${currentInstanceName}"
+echo "Started first Container (${i}a) on port 7005 and 9042 in ${currentInstanceName}"
 
+
+# TO DO: Replace -e variables with config file + STORAGE_PORT
 cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
-                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 2'\
-                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
                         --hostname cassandra-container-${i}b\
                         --network cassandra-network-b\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
                         -p 9043:9042\
-                        -p 7001:7000\
-                        cassandra:3.11"
+                        -p 7010:7010\
+                        cassandra:3.11\
+                        -Dcassandra.config=~/CassandraB.yaml"
 
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
-echo "Started second Container (${i}b) on port 7001 and 9043 in ${currentInstanceName}"
+echo "Started second Container (${i}b) on port 7010 and 9043 in ${currentInstanceName}"
 
 fi
 
 # for subsequent nodes we need to provide a cassandra seed (IP address of first deployed node) for nodes to join the cluster
 if [[ $i -ne 1 ]]; then 
+
+# TO DO: Write script to add the seed_ip addresses to the cassandra1.yaml and cassandra2.yaml and then pass as argument to docker run (mount in container)
+
+if [[$i -eq 2]];then
+cd ~ && printf "seed_provider:\n    - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n - seeds: $seedIp" >> ~/CassandraA.yaml
+cd ~ && printf "seed_provider:\n    - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n - seeds: $seedIp" >> ~/CassandraB.yaml
+fi
+
 # Start first Container
+# TO DO: Replace -e variables with config file + STORAGE_PORT
 cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
-                        -e CASSANDRA_SEEDS=$seedIp\
-                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
-                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 1'\
                         --hostname cassandra-container-${i}a\
                         --network cassandra-network-a\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
                         -p 9042:9042\
-                        -p 7000:7000\
-                        cassandra:latest"
+                        -p 7005:7005\
+                        cassandra:latest\
+                        -Dcassandra.config=~/CassandraA.yaml"
 
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
-echo "Started first Container (${i}a) on port 7000 and 9042 in ${currentInstanceName}"
+echo "Started first Container (${i}a) on port 7005 and 9042 in ${currentInstanceName}"
 
+# TO DO: Replace -e variables with config file + STORAGE_PORT
 cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
-                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
-                        -e CASSANDRA_SEEDS=$seedIp\
-                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster Version 2'\
                         --hostname cassandra-container-${i}b\
                         --network cassandra-network-b\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
                         -p 9043:9042\
-                        -p 7001:7000\
-                        cassandra:3.11"
+                        -p 7010:7010\
+                        cassandra:3.11\
+                        -Dcassandra.config=~/CassandraB.yaml"
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
-echo "Started second Container (${i}b) on port 7001 and 9043 in ${currentInstanceName}"
+echo "Started second Container (${i}b) on port 7010 and 9043 in ${currentInstanceName}"
 
 fi
 

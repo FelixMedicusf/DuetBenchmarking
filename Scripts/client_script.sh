@@ -32,8 +32,11 @@ gcloud compute ssh $instanceName --zone europe-west1-b -- 'echo "/usr/bin/python
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'cd ~ && sudo curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-0.17.0.tar.gz'
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo tar xfvz ycsb-0.17.0.tar.gz'
 
-gcloud compute ssh $instanceName --zone europe-west1-b -- 'cd ~/ycsb-0.17.0 && ./bin/ycsb load basic -P workloads/workloada > load_operations.dat'
-gcloud compute ssh $instanceName --zone europe-west1-b -- 'cd ~/ycsb-0.17.0 && ./bin/ycsb load basic -P workloads/workloada > run_operations.dat'
+# Generate Operations for later injection into database 
+gcloud compute ssh $instanceName --zone europe-west1-b -- 'cd ~/ycsb-0.17.0 && ./bin/ycsb load basic -P workloads/workloada > ~/load_operations.dat'
+gcloud compute ssh $instanceName --zone europe-west1-b -- 'cd ~/ycsb-0.17.0 && ./bin/ycsb load basic -P workloads/workloada > ~/run_operations.dat'
+
+
 
 # Copy Kotlin code to machine 
 # run kotlin code with ip address array, and put load and run operations in folder or also give as parameter 

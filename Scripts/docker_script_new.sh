@@ -34,8 +34,8 @@ firstInstanceName=$currentInstanceName
 # -p 8080:80 --> Map TCP port 80 in the container to port 8080 on the Docker host. -p <host_port>:<container_port>
 
 
-cd ~ && printf "cluster_name: 'Cassandra Cluster A' \nstorage_port: 7005" > ~/CassandraA.yaml
-cd ~ && printf "cluster_name: 'Cassandra Cluster B' \nstorage_port: 7010" > ~/CassandraB.yaml
+cd ~ && printf "cluster_name: 'Cassandra Cluster A' \nstorage_port: 7005" > ~/cassandraA.yaml
+cd ~ && printf "cluster_name: 'Cassandra Cluster B' \nstorage_port: 7010" > ~/cassandraB.yaml
 
 # TO DO: Replace -e variables with config file + STORAGE_PORT
 cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
@@ -74,8 +74,8 @@ if [[ $i -ne 1 ]]; then
 # TO DO: Write script to add the seed_ip addresses to the cassandra1.yaml and cassandra2.yaml and then pass as argument to docker run (mount in container)
 
 if [[$i -eq 2]];then
-cd ~ && printf "seed_provider:\n    - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n - seeds: $seedIp" >> ~/CassandraA.yaml
-cd ~ && printf "seed_provider:\n    - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n - seeds: $seedIp" >> ~/CassandraB.yaml
+cd ~ && printf "seed_provider:\n  - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n    - seeds: $seedIp" >> ~/cassandraA.yaml
+cd ~ && printf "seed_provider:\n  - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n    - seeds: $seedIp" >> ~/cassandraB.yaml
 fi
 
 # Start first Container

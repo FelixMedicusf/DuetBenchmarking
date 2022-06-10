@@ -33,9 +33,10 @@ firstInstanceName=$currentInstanceName
 # Cassandra uses port 7000 for Internode Communication, 7001 for TLS internode communication, 9160 as Thrift Client API, and 9042 as CQL native transport port 
 # -p 8080:80 --> Map TCP port 80 in the container to port 8080 on the Docker host. -p <host_port>:<container_port>
 
-
-cd ~ && printf "cluster_name: 'Cassandra Cluster A' \nstorage_port: 7005" > ~/cassandraA.yaml
-cd ~ && printf "cluster_name: 'Cassandra Cluster B' \nstorage_port: 7010" > ~/cassandraB.yaml
+command1 = "cd ~ && printf "cluster_name: 'Cassandra Cluster A' \nstorage_port: 7005" > ~/cassandraA.yaml"
+command2 = "cd ~ && printf "cluster_name: 'Cassandra Cluster B' \nstorage_port: 7010" > ~/cassandraB.yaml"
+gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $command1  
+gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $command2
 
 # TO DO: Replace -e variables with config file + STORAGE_PORT
 cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
@@ -45,7 +46,7 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -p 9042:9042\
                         -p 7005:7005\
                         cassandra:latest\
-                        -Dcassandra.config=~/CassandraA.yaml"
+                        -Dcassandra.config=~/cassandraA.yaml"
 
 # Start first Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
@@ -60,7 +61,7 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -p 9043:9042\
                         -p 7010:7010\
                         cassandra:3.11\
-                        -Dcassandra.config=~/CassandraB.yaml"
+                        -Dcassandra.config=~/cassandraB.yaml"
 
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
@@ -74,8 +75,11 @@ if [[ $i -ne 1 ]]; then
 # TO DO: Write script to add the seed_ip addresses to the cassandra1.yaml and cassandra2.yaml and then pass as argument to docker run (mount in container)
 
 if [[$i -eq 2]];then
-cd ~ && printf "seed_provider:\n  - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n    - seeds: $seedIp" >> ~/cassandraA.yaml
-cd ~ && printf "seed_provider:\n  - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n    - seeds: $seedIp" >> ~/cassandraB.yaml
+command1 = "cd ~ && printf "\nseed_provider:\n  - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n    - seeds: $seedIp" >> ~/cassandraA.yaml"
+command2 = "cd ~ && printf "\nseed_provider:\n  - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n    - seeds: $seedIp" >> ~/cassandraB.yaml"
+gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $command1
+gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $command2
+
 fi
 
 # Start first Container
@@ -87,7 +91,7 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -p 9042:9042\
                         -p 7005:7005\
                         cassandra:latest\
-                        -Dcassandra.config=~/CassandraA.yaml"
+                        -Dcassandra.config=~/cassandraA.yaml"
 
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
 echo "Started first Container (${i}a) on port 7005 and 9042 in ${currentInstanceName}"
@@ -100,7 +104,7 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -p 9043:9042\
                         -p 7010:7010\
                         cassandra:3.11\
-                        -Dcassandra.config=~/CassandraB.yaml"
+                        -Dcassandra.config=~/cassandraB.yaml"
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
 echo "Started second Container (${i}b) on port 7010 and 9043 in ${currentInstanceName}"
@@ -131,5 +135,7 @@ gcloud compute ssh $firstInstanceName --zone europe-west1-b -- 'sudo docker exec
 printf "Nodes of Cluster B:\n"
 gcloud compute ssh $firstInstanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-1b nodetool status'
 
+sudo rm  ~/cassandraA.yaml
+sudo rm  ~/cassandraB.yaml
 
 # Erkennt Cassandra den jeweligen Port über den Namen des Cluster auf der seed_ip? oder immer 7000?

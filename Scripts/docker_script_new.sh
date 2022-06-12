@@ -42,11 +42,13 @@ gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $command2
 cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         --hostname cassandra-container-${i}a\
                         --network cassandra-network-a\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
+                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster A'\
+                        -e CASSANDRA_STORAGE_PORT=7005\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
                         -p 9042:9042\
                         -p 7005:7005\
-                        -Dcassandra.config=/home/felixmedicus/cassandraA.yaml\
-                        cassandra:latest"
+                        felixmedicus/new_cassandra-container"
 
 # Start first Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
@@ -57,11 +59,13 @@ echo "Started first Container (${i}a) on port 7005 and 9042 in ${currentInstance
 cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         --hostname cassandra-container-${i}b\
                         --network cassandra-network-b\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
+                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster B'\
+                        - e CASSANDRA_STORAGE_PORT=7010\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
                         -p 9043:9042\
                         -p 7010:7010\
-                        -Dcassandra.config=/home/felixmedicus/cassandraB.yaml\
-                        cassandra:3.11"
+                        felixmedicus/new_cassandra-container"
 
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
@@ -87,11 +91,14 @@ fi
 cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         --hostname cassandra-container-${i}a\
                         --network cassandra-network-a\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
+                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster A'\
+                        -e CASSANDRA_SEEDS=$seedIp\
+                        -e CASSANDRA_STORAGE_PORT=7005\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
                         -p 9042:9042\
                         -p 7005:7005\
-                        cassandra:latest\
-                        -Dcassandra.config=/home/felixmedicus/cassandraA.yaml"
+                        felixmedicus/new_cassandra-container"
 
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
 echo "Started first Container (${i}a) on port 7005 and 9042 in ${currentInstanceName}"
@@ -100,11 +107,14 @@ echo "Started first Container (${i}a) on port 7005 and 9042 in ${currentInstance
 cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         --hostname cassandra-container-${i}b\
                         --network cassandra-network-b\
+                        -e CASSANDRA_BROADCAST_ADDRESS=$nodeInternalIp\
+                        -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster B'\
+                        -e CASSANDRA_SEEDS=$seedIp\
+                        -e CASSANDRA_STORAGE_PORT=7010\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
                         -p 9043:9042\
                         -p 7010:7010\
-                        cassandra:3.11\
-                        -Dcassandra.config=/home/felixmedicus/cassandraB.yaml"
+                        felixmedicus/new_cassandra-container"
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
 echo "Started second Container (${i}b) on port 7010 and 9043 in ${currentInstanceName}"

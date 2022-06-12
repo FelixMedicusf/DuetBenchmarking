@@ -32,6 +32,8 @@ resource "google_compute_firewall" "cassandra_firewall_ingress" {
       "8080", #HTTP
       "7000", #Cassandra-Cluster Communication
       "7001", #Cassandra-Cluster Communication with enabled SSL
+      "7005", 
+      "7010",
       "9042", #Cassandra native protocol clients 
     ]
   }

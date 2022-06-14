@@ -30,11 +30,10 @@ resource "google_compute_firewall" "cassandra_firewall_ingress" {
     ports = [
       "80",   #HTTP
       "8080", #HTTP
-      "7000", #Cassandra-Cluster Communication
-      "7001", #Cassandra-Cluster Communication with enabled SSL
-      "7005", 
-      "7010",
-      "9042", #Cassandra native protocol clients 
+      "7005", #Internode Communication Cluster A
+      "7010", #Internode Communication Cluster B
+      "9045", #Client Communication Cluster A
+      "9050"  #Client Communication Cluster B
     ]
   }
 }
@@ -52,9 +51,10 @@ resource "google_compute_firewall" "cassandra_firewall_egresss" {
     ports = [
       "80",   #HTTP
       "8080", #HTTP
-      "7000", #Cassandra-Cluster Communication
-      "7001", #Cassandra-Cluster Communication with enabled SSL
-      "9042", #Cassandra native protocol clients 
+      "7005", #Internode Communication Cluster A
+      "7010", #Internode Communication Cluster B 
+      "9045", #Client Communication Cluster A
+      "9050"  #Client Communication Cluster B
     ]
   }
 }

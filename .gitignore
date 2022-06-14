@@ -4,3 +4,4 @@
 .terraform/
 *tfstate.backup
 *.log.info
+*lock.info

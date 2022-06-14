@@ -46,9 +46,9 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster A'\
                         -e CASSANDRA_STORAGE_PORT=7005\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
-                        -p 9042:9042\
+                        -p 9045:9042\
                         -p 7005:7005\
-                        felixmedicus/new_cassandra-container"
+                        felixmedicus/cassandraport"
 
 # Start first Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
@@ -63,9 +63,9 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster B'\
                         -e CASSANDRA_STORAGE_PORT=7010\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
-                        -p 9043:9042\
+                        -p 9050:9042\
                         -p 7010:7010\
-                        felixmedicus/new_cassandra-container"
+                        felixmedicus/cassandraport"
 
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
@@ -96,9 +96,9 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -e CASSANDRA_SEEDS=$seedIp\
                         -e CASSANDRA_STORAGE_PORT=7005\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
-                        -p 9042:9042\
+                        -p 9045:9042\
                         -p 7005:7005\
-                        felixmedicus/new_cassandra-container"
+                        felixmedicus/cassandraport"
 
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
 echo "Started first Container (${i}a) on port 7005 and 9042 in ${currentInstanceName}"
@@ -112,9 +112,9 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -e CASSANDRA_SEEDS=$seedIp\
                         -e CASSANDRA_STORAGE_PORT=7010\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
-                        -p 9043:9042\
+                        -p 9050:9042\
                         -p 7010:7010\
-                        felixmedicus/new_cassandra-container"
+                        felixmedicus/cassandraport"
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
 echo "Started second Container (${i}b) on port 7010 and 9043 in ${currentInstanceName}"

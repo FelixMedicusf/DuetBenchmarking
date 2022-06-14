@@ -48,7 +48,7 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
                         -p 9045:9045\
                         -p 7005:7005\
-                        felixmedicus/cassandra_edited:4.0"
+                        felixmedicus/cassandra_edited:4.0.4"
 
 # Start first Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
@@ -64,7 +64,7 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
                         -p 9050:9050\
                         -p 7010:7010\
-                        felixmedicus/cassandra_edited:4.0"
+                        felixmedicus/cassandra_edited:3.0.27"
 
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
@@ -95,7 +95,7 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
                         -p 9045:9045\
                         -p 7005:7005\
-                        felixmedicus/cassandra_edited:4.0"
+                        felixmedicus/cassandra_edited:4.0.4"
 
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
 echo "Started first Container (${i}a) on port 7005 and 9045 in ${currentInstanceName}"
@@ -111,7 +111,7 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
                         -p 9050:9050\
                         -p 7010:7010\
-                        felixmedicus/cassandra_edited:4.0"
+                        felixmedicus/cassandra_edited:3.0.27"
 # Start second Container
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- $cmd
 echo "Started second Container (${i}b) on port 7010 and 9050 in ${currentInstanceName}"
@@ -127,8 +127,8 @@ gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker ru
 
 
 # Multiple attempts to load data (keyspace and table) into cassandra-container-${i}b
-gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}b -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
-gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}b -e CQLSH_PORT=9042 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
+gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}b -e CQLSH_PORT=9042 -e CQLVERSION=3.4.0 nuvo/docker-cqlsh"
+gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}b -e CQLSH_PORT=9042 -e CQLVERSION=3.4.0 nuvo/docker-cqlsh"
 
 # Show active Docker Container
 printf "Active Docker Container in VM: $currentInstanceName\n"

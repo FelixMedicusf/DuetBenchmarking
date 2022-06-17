@@ -30,4 +30,4 @@
 **/gradle
 **/build
 *.properties
-*.settings
+*.settings.gradle

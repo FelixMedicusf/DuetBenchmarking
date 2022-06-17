@@ -12,9 +12,7 @@ repositories {
 
 dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-test:1.7.0'
-    implementation 'com.datastax.cassandra:cassandra-driver-parent:3.11.2'
     implementation 'com.datastax.cassandra:cassandra-driver-core:4.0.0'
-    implementation 'com.datastax.cassandra:cassandra-driver-mapping:3.11.2'
     implementation 'com.datastax.cassandra:cassandra-driver-extras:3.11.2'
     implementation 'com.datastax.oss:java-driver-query-builder:4.14.1'
 

@@ -1,12 +1,16 @@
 import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.CqlSession
+import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import com.datastax.oss.driver.api.core.cql.ResultSet
 import com.datastax.oss.driver.api.core.cql.Row
-
+import java.net.InetSocketAddress
 
 fun main(args: Array<String>) {
 
 
+
+    println()
+    print(args.size)
     try{
         var session1 = CassandraConnector()
         session1.connect("35.189.219.44", 9045, "datacenter1")
@@ -14,7 +18,23 @@ fun main(args: Array<String>) {
 
 
     }catch(e: java.lang.Exception){
-        print("Connection Class failed")
+        print("1 Connection Class failed")
+    }
+
+    try{
+        // Cluster does not exist anymore; the session is now the main component, initialized in a single step
+
+        var socket2 = InetSocketAddress("35.189.219.44",9045)
+        var builder: CqlSessionBuilder = CqlSession.builder()
+        builder.addContactPoint(socket2)
+
+        var session2 = builder.build()
+
+        var resultsFromFirstQuery : ResultSet = session2.execute("SELECT * FROM ycsb.usertable")
+
+
+    }catch(e: java.lang.Exception){
+        println("2 Not working")
     }
 
 
@@ -40,7 +60,7 @@ fun main(args: Array<String>) {
 
 
     } catch (e: java.lang.Exception) {
-        print("Connection Script failed")
+        print("3 Connection Script failed")
     }
 
 }

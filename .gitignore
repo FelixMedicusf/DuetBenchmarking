@@ -25,9 +25,9 @@
 *.tar.gz
 *.rar
 
-/.idea
-/.gradle
-/gradle
-/build
-/gradle.properties
-/gradle.settings
+**/.idea
+**/.gradle
+**/gradle
+**/build
+*.properties
+*.settings

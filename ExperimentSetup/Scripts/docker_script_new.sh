@@ -45,6 +45,7 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster A'\
                         -e CASSANDRA_STORAGE_PORT=7005\
                         -e CASSANDRA_NATIVE_TRANSPORT_PORT=9045\
+                        -e CASSANDRA_BROADCAST_RPC_ADDRESS=$nodeExternalIp\
                         -e CASSANDRA_ENDPOINT_SNITCH='GoogleCloudSnitch'\
                         -e CASSANDRA_NUM_TOKENS=16\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
@@ -63,6 +64,7 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -e CASSANDRA_CLUSTER_NAME='Cassandra Cluster B'\
                         -e CASSANDRA_STORAGE_PORT=7010\
                         -e CASSANDRA_NATIVE_TRANSPORT_PORT=9050\
+                        -e CASSANDRA_BROADCAST_RPC_ADDRESS=$nodeExternalIp\
                         -e CASSANDRA_ENDPOINT_SNITCH='GoogleCloudSnitch'\
                         -e CASSANDRA_NUM_TOKENS=16\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
@@ -96,6 +98,7 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -e CASSANDRA_SEEDS=$seedIp\
                         -e CASSANDRA_STORAGE_PORT=7005\
                         -e CASSANDRA_NATIVE_TRANSPORT_PORT=9045\
+                        -e CASSANDRA_BROADCAST_RPC_ADDRESS=$nodeExternalIp\
                         -e CASSANDRA_ENDPOINT_SNITCH='GoogleCloudSnitch'\
                         -e CASSANDRA_NUM_TOKENS=16\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
@@ -114,6 +117,7 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -e CASSANDRA_SEEDS=$seedIp\
                         -e CASSANDRA_STORAGE_PORT=7010\
                         -e CASSANDRA_NATIVE_TRANSPORT_PORT=9050\
+                        -e CASSANDRA_BROADCAST_RPC_ADDRESS=$nodeExternalIp\
                         -e CASSANDRA_ENDPOINT_SNITCH='GoogleCloudSnitch'\
                         -e CASSANDRA_NUM_TOKENS=16\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\

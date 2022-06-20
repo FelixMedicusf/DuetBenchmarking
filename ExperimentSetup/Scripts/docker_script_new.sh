@@ -46,7 +46,7 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -e CASSANDRA_STORAGE_PORT=7005\
                         -e CASSANDRA_NATIVE_TRANSPORT_PORT=9045\
                         -e CASSANDRA_ENDPOINT_SNITCH='GoogleCloudSnitch'\
-                        -e CASSANDRA_RACK='DataCenter A1: Rack ${i}'\
+                        -e CASSANDRA_NUM_TOKENS=16\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
                         -p 9045:9045\
                         -p 7005:7005\
@@ -64,7 +64,7 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -e CASSANDRA_STORAGE_PORT=7010\
                         -e CASSANDRA_NATIVE_TRANSPORT_PORT=9050\
                         -e CASSANDRA_ENDPOINT_SNITCH='GoogleCloudSnitch'\
-                        -e CASSANDRA_RACK='DataCenter B1: Rack ${i}'\
+                        -e CASSANDRA_NUM_TOKENS=16\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
                         -p 9050:9050\
                         -p 7010:7010\
@@ -97,7 +97,7 @@ cmd="sudo docker run --name cassandra-container-${i}a -d --rm\
                         -e CASSANDRA_STORAGE_PORT=7005\
                         -e CASSANDRA_NATIVE_TRANSPORT_PORT=9045\
                         -e CASSANDRA_ENDPOINT_SNITCH='GoogleCloudSnitch'\
-                        -e CASSANDRA_RACK='DataCenter A1: Rack ${i}'\
+                        -e CASSANDRA_NUM_TOKENS=16\
                         -v /docker/cassandra/container-${i}a:/var/lib/cassandra\
                         -p 9045:9045\
                         -p 7005:7005\
@@ -115,7 +115,7 @@ cmd="sudo docker run --name cassandra-container-${i}b -d --rm\
                         -e CASSANDRA_STORAGE_PORT=7010\
                         -e CASSANDRA_NATIVE_TRANSPORT_PORT=9050\
                         -e CASSANDRA_ENDPOINT_SNITCH='GoogleCloudSnitch'\
-                        -e CASSANDRA_RACK='DataCenter B1 : Rack ${i}'\
+                        -e CASSANDRA_NUM_TOKENS=16\
                         -v /docker/cassandra/container-${i}b:/var/lib/cassandra\
                         -p 9050:9050\
                         -p 7010:7010\

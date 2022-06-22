@@ -11,6 +11,7 @@ read  -p "Enter Instance group name in which you want to deploy Cassandra Docker
 # Loop through all deployed nodes to provision them with Cassandra Container
 for (( i=1; i <= $nodeNumber; ++i ))
 do 
+firstInstanceName="${instanceGroupName}-1"
 currentInstanceName="${instanceGroupName}-$i"
 nodeExternalIp="$(gcloud compute instances describe $currentInstanceName --zone='europe-west1-b' --format='get(networkInterfaces[0].accessConfigs[0].natIP)')"
 nodeInternalIp="$(gcloud compute instances describe $currentInstanceName --zone='europe-west1-b' --format='get(networkInterfaces[0].networkIP)')"
@@ -130,23 +131,19 @@ echo "Started second Container (${i}b) on port 7010 and 9050 in ${currentInstanc
 
 fi
 
-echo "Waiting for Container ${i}a and ${i}b to run to load data"
-sleep 35 
-
-# Multiple attempts to load data (keyspace and table) into cassandra-container-${i}a
-gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}a -e CQLSH_PORT=9045 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
-gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}a -e CQLSH_PORT=9045 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
-
-
-# Multiple attempts to load data (keyspace and table) into cassandra-container-${i}b
-gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}b -e CQLSH_PORT=9050 -e CQLVERSION=3.4.0 nuvo/docker-cqlsh"
-gcloud compute ssh $currentInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-${i}b -e CQLSH_PORT=9050 -e CQLVERSION=3.4.0 nuvo/docker-cqlsh"
-
 # Show active Docker Container
 printf "Active Docker Container in VM: $currentInstanceName\n"
 gcloud compute ssh $currentInstanceName --zone europe-west1-b -- 'sudo docker ps'
 
 done
+
+# Multiple attempts to load data (keyspace and table) into cassandra-container-1a
+gcloud compute ssh $firstInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9045 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
+gcloud compute ssh $firstInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9045 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
+
+# Multiple attempts to load data (keyspace and table) into cassandra-container-1b
+gcloud compute ssh $firstInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1b -e CQLSH_PORT=9050 -e CQLVERSION=3.4.0 nuvo/docker-cqlsh"
+gcloud compute ssh $firstInstanceName --zone europe-west1-b -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1b -e CQLSH_PORT=9050 -e CQLVERSION=3.4.0 nuvo/docker-cqlsh"
 
 printf "Nodes of Cluster A:\n"
 gcloud compute ssh $firstInstanceName --zone europe-west1-b -- 'sudo docker exec -it cassandra-container-1a nodetool status'

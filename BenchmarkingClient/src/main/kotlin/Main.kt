@@ -1,66 +1,153 @@
-import com.datastax.oss.driver.api.core.CqlIdentifier
-import com.datastax.oss.driver.api.core.CqlSession
-import com.datastax.oss.driver.api.core.CqlSessionBuilder
-import com.datastax.oss.driver.api.core.cql.ResultSet
-import com.datastax.oss.driver.api.core.cql.Row
 import java.net.InetSocketAddress
+import java.util.concurrent.CountDownLatch
+
 
 fun main(args: Array<String>) {
 
-
-
-    println()
-    print(args.size)
-    try{
-        var session1 = CassandraConnector()
-        session1.connect("35.189.219.44", 9045, "datacenter1")
-
-
-
-    }catch(e: java.lang.Exception){
-        print("1 Connection Class failed")
-    }
-
-    try{
-        // Cluster does not exist anymore; the session is now the main component, initialized in a single step
-
-        var socket2 = InetSocketAddress("35.189.219.44",9045)
-        var builder: CqlSessionBuilder = CqlSession.builder()
-        builder.addContactPoint(socket2)
-
-        var session2 = builder.build()
-
-        var resultsFromFirstQuery : ResultSet = session2.execute("SELECT * FROM ycsb.usertable")
-
-
-    }catch(e: java.lang.Exception){
-        println("2 Not working")
-    }
-
+    // Take as program args
+    val ipAddresses : Array<String> = arrayOf("35.205.128.75","34.79.99.119","34.140.43.140")
+    val queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
 
     try {
 
-        /* Tie Keyspace "ycsb" to the Session "sessionForKeyspace". This keyspace will then be used as the default when
-        using session.execute */
-        val sessionForKeyspace = CqlSession.builder()
-            .withKeyspace(CqlIdentifier.fromCql("ycsb"))
-            .build()
+        val socketsA = mutableListOf<InetSocketAddress>()
+        val socketsB = mutableListOf<InetSocketAddress>()
 
-        var session: CqlSession = CqlSession.builder().build()
+        /* Read the from YCSB generated queries and transform them to Cassandra-specific queries and place them in the list
+         "queries" */
 
-        /* You can run queries with the session's execute method.
-        Executing a query produces a ResultSet, which is an iterable of Row. The basic way to process all rows is to use
-        Java's for-each loop. When you know that there is only one row (or are only interested in the first one), the
-        driver provides a convenient method: one(). Row provides getters to extract column values; they can be positional
-        or named*/
-        var rs : ResultSet = sessionForKeyspace.execute("select release_version from system.local")
-        var row : Row? = rs.one()
-        println(row?.getString("release_version"))
-        session.close()
+        var ca = cassandraDataBaseQueries()
 
+        var loadingOperationsList = returnListFromInsertData("src\\main\\resources\\loading_operations.dat")
+        writeOperationsToFile("src\\main\\resources\\loading_operations_cassandra.dat", loadingOperationsList,
+            ca::transformLoadingPhaseOperation)
+
+        var runningOperationsList = returnListFromRunData("src\\main\\resources\\run_operations.dat")
+        writeOperationsToFile("src\\main\\resources\\run_operations_cassandra.dat", runningOperationsList,
+            ca::transformRunPhaseOperation)
+
+
+
+        var loadOperations = returnListFromInsertData("src\\main\\resources\\loading_operations_cassandra.dat")
+
+        var runOperations = returnListFromInsertData("src\\main\\resources\\run_operations_cassandra.dat")
+
+
+        var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
+
+        for(index in ipAddresses.indices){
+            ipIndexAndOccurrence.put(index, queryIntensity[index])
+        }
+
+        val ipIndices = getSutList(ipIndexAndOccurrence, 1_000)
+
+
+        try {
+            for (address in ipAddresses) {
+                var socketA = InetSocketAddress(address, 9045)
+                var socketB = InetSocketAddress(address, 9050)
+                socketsA.add(socketA)
+                socketsB.add(socketB)
+            }
+
+        }catch(e: java.lang.Exception){
+            e.printStackTrace()
+        }
+
+
+        val latch = CountDownLatch(1)
+
+        var workerA1 = WorkerThread("WorkerA1", socketsA, ipIndices, loadOperations, runOperations, latch, )
+        workerA1.start()
+        var workerB1 = WorkerThread("WorkerB1", socketsB, ipIndices, loadOperations, runOperations, latch, )
+        workerB1.start()
+
+        // Resume the execution of the threads simultaneously
+        // Also possible to use CyclicBarrier Class or Phaser Class
+        latch.countDown()
+
+
+        /*
+
+        var sessionsA = mutableListOf<CqlSession>()
+        var sessionsB = mutableListOf<CqlSession>()
+
+        for (socket in socketsA){
+            var builder = CqlSession.builder().withLocalDatacenter("europe-west1")
+
+            builder.addContactPoint(socket)
+
+            sessionsA.add(builder.build())
+        }
+        for (socket in socketsA){
+            var builder = CqlSession.builder().withLocalDatacenter("europe-west1")
+
+            builder.addContactPoint(socket)
+
+            sessionsB.add(builder.build())
+        }
+
+        for((index, query) in queries.withIndex()){
+            var nodeNumber = ipIndices[index]
+
+            sessionsA[nodeNumber].execute(query)
+            sessionsB[nodeNumber].execute(query)
+
+
+            // mache query an
+        }
+
+
+
+
+
+
+        var socket2 = InetSocketAddress(ipAddresses[1], 9050)
+        var socket1 = InetSocketAddress(ipAddresses[0], 9050)
+
+        // Cluster does not exist anymore; the session is now the main component, initialized in a single step
+
+        var builder: CqlSessionBuilder = CqlSession.builder().withLocalDatacenter("europe-west1")
+        builder.addContactPoint(socket2).addContactPoint(socket1)
+
+        var session2 = builder.build()
+
+        session2.execute("Hello")
+
+
+
+
+        println(queries[0])
+
+        var query = "SELECT * FROM ycsb.usertable;"
+        session2.execute(query)
+
+        session2.execute(queries[0])
+
+
+        var resultsFromSelectStatementQuery = session2.execute(query)
+
+
+        var firstRow: Row? = resultsFromSelectStatementQuery.one()
+
+        for(i in 0..10){
+            println(firstRow?.getString(i))
+        }
+
+        // println(resultsFromFirstQuery)
+
+        session2.close()
+
+         */
 
     } catch (e: java.lang.Exception) {
-        print("3 Connection Script failed")
-    }
 
+
+        println("Not working")
+        println(e.printStackTrace())
+
+    }
 }
+
+
+

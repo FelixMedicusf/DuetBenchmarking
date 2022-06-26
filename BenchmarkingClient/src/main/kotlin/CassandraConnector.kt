@@ -14,7 +14,7 @@ import java.net.InetSocketAddress
         fun connect(node: String, port: Int, dataCenter:String){
             var builder : CqlSessionBuilder = CqlSession.builder()
 
-            builder.addContactPoint(InetSocketAddress(node, port.toInt()))
+            builder.addContactPoint(InetSocketAddress(node, port))
 
            //  builder.withLocalDatacenter(dataCenter)
 

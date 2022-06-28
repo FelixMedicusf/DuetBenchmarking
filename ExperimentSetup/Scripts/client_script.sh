@@ -34,7 +34,7 @@ gcloud compute ssh $instanceName --zone europe-west1-b -- 'sudo tar xfvz ycsb-0.
 
 # Generate Operations for later injection into database 
 gcloud compute ssh $instanceName --zone europe-west1-b -- 'cd ~/ycsb-0.17.0 && ./bin/ycsb load basic -P workloads/workloada > ~/load_operations.dat'
-gcloud compute ssh $instanceName --zone europe-west1-b -- 'cd ~/ycsb-0.17.0 && ./bin/ycsb load basic -P workloads/workloada > ~/run_operations.dat'
+gcloud compute ssh $instanceName --zone europe-west1-b -- 'cd ~/ycsb-0.17.0 && ./bin/ycsb run basic -P workloads/workloada > ~/run_operations.dat'
 
 
 

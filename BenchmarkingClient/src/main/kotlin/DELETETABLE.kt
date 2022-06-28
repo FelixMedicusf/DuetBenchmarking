@@ -1,7 +1,7 @@
 import com.datastax.oss.driver.api.core.CqlSession
 import java.net.InetSocketAddress
 
-val ipAddresses : Array<String> = arrayOf("35.205.128.75","34.79.99.119","34.140.43.140")
+val ipAddresses : Array<String> = arrayOf("34.77.48.150","34.78.71.71","34.77.142.203")
 
 fun main() {
     val socketsA = mutableListOf<InetSocketAddress>()

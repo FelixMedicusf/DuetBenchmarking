@@ -1,5 +1,6 @@
 import com.datastax.oss.driver.api.core.CqlSession
 import java.net.InetSocketAddress
+import java.sql.ResultSet
 import java.time.Instant
 import java.util.concurrent.CountDownLatch
 
@@ -9,6 +10,8 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
 
     var sessions = mutableListOf<CqlSession>()
 
+    var runResults = mutableListOf<com.datastax.oss.driver.api.core.cql.ResultSet>()
+
     init {
         for(socket in sockets){
 
@@ -16,18 +19,13 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
             builder.addContactPoint(socket)
             sessions.add(builder.build())
 
-            println("Worker initialized session to ${socket.toString()}")
+            println("$WorkerName initialized session to $socket")
         }
     }
 
-    /*
-    init {
-        println("ip indix at 500 is ${ipIndices[500]} and workload at 500 is ${operations[500]}")
-    }
-    */
-
     override fun run() {
-        // After the Threads are started they are blocked
+
+        // After the Threads are started they are blocked immediately
         latch.await()
         println("$WorkerName started Data Loading at ${Instant.now()}")
         val startTimeLoading = System.currentTimeMillis()
@@ -41,10 +39,13 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
         println("$WorkerName started Data Running Queries at ${Instant.now()}")
         val startTimeRunning = System.currentTimeMillis()
 
+
         for((index, query) in runOperations.withIndex()){
             var nodeNumber = ipIndices[index]
-            sessions[nodeNumber].execute(query)
+            var result = sessions[nodeNumber].execute(query)
+            runResults.add(result)
         }
+
 
         for(session in sessions){
             session.close()

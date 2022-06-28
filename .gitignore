@@ -31,3 +31,6 @@
 **/build
 *.properties
 *.settings.gradle
+
+# Workload filess
+*.dat

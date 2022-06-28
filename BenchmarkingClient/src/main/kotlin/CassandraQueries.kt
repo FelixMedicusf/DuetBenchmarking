@@ -1,12 +1,6 @@
-import java.io.File
-import java.util.stream.Collectors
+class CassandraQueries: operable{
 
-
-
-class cassandraDataBaseQueries: operable{
-
-
-    override fun transformLoadingPhaseOperation(operation : String, dataBaseName: String): String {
+    override fun transformLoadOperations(operation : String, dataBaseName: String): String {
 
         var cassandraOperation = operation
             .replace("INSERT", "INSERT INTO")
@@ -18,7 +12,7 @@ class cassandraDataBaseQueries: operable{
         var insertData = operation.substring(operation.indexOf("usertable") + "usertable".length + 1).replace("\'", "\"")
 
         val columnList : List<String> = listOf("y_id", "field0", "field1", "field2", "field3", "field4", "field5", "field6", "field7",
-                                                "field8", "field9")
+            "field8", "field9")
 
         var columnValues = mutableListOf<String>()
 
@@ -60,7 +54,7 @@ class cassandraDataBaseQueries: operable{
 
 
 
-    override fun transformRunPhaseOperation(operation: String, dataBaseName: String): String {
+    override fun transformRunOperations(operation: String, dataBaseName: String): String {
 
         // TODO("ESCAPE SPECIAL CHARACTERS")
         var removedBrackets = operation.replace("[", "").replace("]","")
@@ -89,7 +83,7 @@ class cassandraDataBaseQueries: operable{
                 val data = components.subList(3, components.size).joinToString(separator = "")
 
                 val insertData = data.replace("$", "d").replace("\"", "q")
-                                .replace("\'","f").substring(7)
+                    .replace("\'","f").substring(7)
 
                 val field = data.substring(0, 6)
 
@@ -97,6 +91,24 @@ class cassandraDataBaseQueries: operable{
                 cassandraOperation+="$dataBaseName.${components[1]} "
                 cassandraOperation+="SET $field=\'$insertData\' "
                 cassandraOperation+="WHERE y_id=\'${components[2]}\';"
+            }
+
+            "SCAN" -> {
+                cassandraOperation += "SELECT "
+
+                if (components.contains("<all")){
+                    cassandraOperation+="* "
+                }
+
+                cassandraOperation+="FROM "
+
+                cassandraOperation+="$dataBaseName.${components[1]} "
+
+
+
+                cassandraOperation+="WHERE field${(0..9).random()}>=\'${components[2]}\' "
+
+                cassandraOperation+="LIMIT ${components[3]} ALLOW FILTERING;"
             }
         }
         return cassandraOperation
@@ -107,43 +119,12 @@ class cassandraDataBaseQueries: operable{
 }
 
 
-fun writeOperationsToFile (fileName: String, operationsList: List<String>, transformLine:(String, String) -> String ){
-    var file = File(fileName)
-
-    file.printWriter().use { out ->
-        for (line in operationsList){
-            out.println(transformLine(line, "ycsb"))
-        }
-    }
-
-}
-
-fun returnListFromInsertData (fileName : String) : List<String> {
-    val lines : MutableList <String> = mutableListOf()
-    File(fileName).readLines().forEach { line ->
-        if (line.startsWith("INSERT")) {
-            lines.add(line)
-        }
-    }
-    return lines;
-}
-
-fun returnListFromRunData(fileName: String) : List<String> {
-    val lines: MutableList<String> = mutableListOf()
-    File(fileName).readLines().forEach { line ->
-        if (line.startsWith("READ") || line.startsWith("UPDATE")) {
-            lines.add(line)
-        }
-    }
-    return lines;
-}
-
 fun main(){
-    var ca = cassandraDataBaseQueries()
+    var ca = CassandraQueries()
 
     /*
 
-    var loadingOperationsList = returnListFromInsertData("src\\main\\resources\\loading_operations.dat")
+    var loadingOperationsList = returnListFromInsertData("src\\main\\resources\\load_operations.dat")
 
     writeOperationsToFile("src\\main\\resources\\loading_operations_cassandra.dat", loadingOperationsList,  ca::transformLoadingPhaseOperation)
 
@@ -157,12 +138,19 @@ fun main(){
 
     var READ = "READ usertable user1935691084326388114 [ <all fields>]"
 
+    var SCAN = "SCAN usertable user8858594567962584336 64 [ <all fields>]"
+
+/*
     println(ca.transformRunPhaseOperation(READ, "ycsb"))
     println("""
-        
-       
+
+
     """.trimIndent())
     println(ca.transformRunPhaseOperation(UPDATE, "ycsb"))
 
+ */
+
+    println(ca.transformRunOperations(SCAN, "ycsb"))
 
 }
+

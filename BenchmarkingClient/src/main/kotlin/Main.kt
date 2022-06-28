@@ -5,8 +5,15 @@ import java.util.concurrent.CountDownLatch
 fun main(args: Array<String>) {
 
     // Take as program args
-    val ipAddresses : Array<String> = arrayOf("35.205.128.75","34.79.99.119","34.140.43.140")
+    val ipAddresses : Array<String> = arrayOf("34.77.48.150","34.78.71.71","34.77.142.203")
     val queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
+
+
+    val workloadAPath = "src\\main\\resources\\workloadA"
+    val workloadCPath = "src\\main\\resources\\workloadC"
+    val workloadEPath = "src\\main\\resources\\workloadE"
+
+
 
     try {
 
@@ -16,21 +23,23 @@ fun main(args: Array<String>) {
         /* Read the from YCSB generated queries and transform them to Cassandra-specific queries and place them in the list
          "queries" */
 
-        var ca = cassandraDataBaseQueries()
+        val ca = CassandraQueries()
 
-        var loadingOperationsList = returnListFromInsertData("src\\main\\resources\\loading_operations.dat")
-        writeOperationsToFile("src\\main\\resources\\loading_operations_cassandra.dat", loadingOperationsList,
-            ca::transformLoadingPhaseOperation)
+        val genericLoadQueriesList = returnQueryListFromFile("$workloadEPath\\load_operations.dat")
 
-        var runningOperationsList = returnListFromRunData("src\\main\\resources\\run_operations.dat")
-        writeOperationsToFile("src\\main\\resources\\run_operations_cassandra.dat", runningOperationsList,
-            ca::transformRunPhaseOperation)
+        writeOperationsToFile("$workloadEPath\\load_operations_cassandra.dat", genericLoadQueriesList,
+            ca::transformLoadOperations)
+
+        val genericRunQueriesList = returnQueryListFromFile("$workloadEPath\\run_operations.dat")
+
+        writeOperationsToFile("$workloadEPath\\run_operations_cassandra.dat", genericRunQueriesList,
+            ca::transformRunOperations)
 
 
 
-        var loadOperations = returnListFromInsertData("src\\main\\resources\\loading_operations_cassandra.dat")
+        var cassandraLoadQueriesList = returnQueryListFromFile("$workloadEPath\\load_operations_cassandra.dat")
 
-        var runOperations = returnListFromInsertData("src\\main\\resources\\run_operations_cassandra.dat")
+        var cassandraRunQueriesList = returnQueryListFromFile("$workloadEPath\\run_operations_cassandra.dat")
 
 
         var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
@@ -44,22 +53,23 @@ fun main(args: Array<String>) {
 
         try {
             for (address in ipAddresses) {
-                var socketA = InetSocketAddress(address, 9045)
-                var socketB = InetSocketAddress(address, 9050)
+                val socketA = InetSocketAddress(address, 9045)
+                val socketB = InetSocketAddress(address, 9050)
                 socketsA.add(socketA)
                 socketsB.add(socketB)
             }
 
         }catch(e: java.lang.Exception){
+            print("Unable to establish connection to one of the Cluster's Nodes!")
             e.printStackTrace()
         }
 
 
         val latch = CountDownLatch(1)
 
-        var workerA1 = WorkerThread("WorkerA1", socketsA, ipIndices, loadOperations, runOperations, latch, )
+        var workerA1 = WorkerThread("WorkerA1", socketsA, ipIndices, cassandraLoadQueriesList, cassandraRunQueriesList, latch, )
         workerA1.start()
-        var workerB1 = WorkerThread("WorkerB1", socketsB, ipIndices, loadOperations, runOperations, latch, )
+        var workerB1 = WorkerThread("WorkerB1", socketsB, ipIndices, cassandraLoadQueriesList, cassandraRunQueriesList, latch, )
         workerB1.start()
 
         // Resume the execution of the threads simultaneously

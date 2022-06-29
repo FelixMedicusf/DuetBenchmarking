@@ -23,3 +23,16 @@ variable "nodes" {
   default = ["cassandra-node-1", "cassandra-node-2", "cassandra-node-3"]
 }
 
+variable "names_and_regions"{
+  type = map(string)
+
+  # europe-west1: Belgien, europe-west2: London, europe-west-3: FFM 
+  default = {
+    cassandra-node-1 = "europe-west1"
+    cassandra-node-2 = "europe-west2"  
+    cassandra-node-3 = "europe-west3" 
+  }
+}
+
+
+

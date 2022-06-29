@@ -1,13 +1,16 @@
 resource "google_compute_address" "static_ip" {
-  name = var.instance-name
+  name = "${var.instance-name}-ipv4-address"
+  region = var.region
 }
 
 resource "google_compute_instance" "cassandra" {
   name = var.instance-name
-  machine_type="e2-medium"
+  machine_type = "e2-medium"
+  zone = "${var.region}-b"
 
   tags = ["allow-traffic", "allow-ssh"]
 
+  depends_on=[google_compute_address.static_ip]
   boot_disk {
     initialize_params {
       image="ubuntu-os-pro-cloud/ubuntu-pro-2004-lts"

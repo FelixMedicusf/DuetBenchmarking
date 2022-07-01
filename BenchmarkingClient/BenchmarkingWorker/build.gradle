@@ -1,5 +1,6 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.6.21'
+    id 'application'
 }
 
 group = 'org.example'
@@ -10,7 +11,13 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    implementation 'org.jetbrains.kotlin:kotlin-test:1.7.0'
+    implementation 'com.datastax.cassandra:cassandra-driver-core:4.0.0'
+    implementation 'com.datastax.cassandra:cassandra-driver-extras:3.11.2'
+    implementation 'com.datastax.oss:java-driver-query-builder:4.14.1'
+    implementation 'org.slf4j:slf4j-api:2.0.0-alpha4'
+    implementation 'org.slf4j:slf4j-simple:2.0.0-alpha4'
+
 }
 
 test {
@@ -23,4 +30,8 @@ compileKotlin {
 
 compileTestKotlin {
     kotlinOptions.jvmTarget = '1.8'
+}
+
+application {
+    mainClassName = 'MainKt'
 }

@@ -5,7 +5,7 @@ import java.util.concurrent.CountDownLatch
 fun main(args: Array<String>) {
 
     // Take as program args
-    val ipAddresses : Array<String> = arrayOf("34.77.48.150","34.78.71.71","34.77.142.203")
+    val ipAddresses : Array<String> = arrayOf("35.187.119.157","35.195.248.109","34.77.86.239")
     val queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
 
 

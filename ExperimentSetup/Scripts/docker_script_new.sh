@@ -13,9 +13,9 @@ for (( i=1; i <= $nodeNumber; ++i ))
 do 
 firstInstanceName="${instanceGroupName}-1"
 currentInstanceName="${instanceGroupName}-$i"
+zone="$(gcloud compute instances list --filter="name=$currentInstanceName" --format "get(zone)" | awk -F/ '{print $NF}')"
 nodeExternalIp="$(gcloud compute instances describe $currentInstanceName --zone=$zone --format='get(networkInterfaces[0].accessConfigs[0].natIP)')"
 nodeInternalIp="$(gcloud compute instances describe $currentInstanceName --zone=$zone --format='get(networkInterfaces[0].networkIP)')"
-zone="$(gcloud compute instances list --filter="name=$currentInstanceName" --format "get(zone)" | awk -F/ '{print $NF}')"
 
 echo "Provisioning $currentInstanceName"
 
@@ -28,7 +28,7 @@ gcloud compute ssh $currentInstanceName --zone $zone -- 'sudo docker network cre
 if [[ $i -eq 1 ]];then
 
 # Copy data.cql from host to home directory of VM 
-gcloud compute scp --zone $zone ~/Documents/data.cql $currentInstanceName:~
+gcloud compute scp --zone $zone ~/Documents/DuetBenchmarking/ExperimentSetup/Scripts/data.cql $currentInstanceName:~
 
 firstZone=$zone
 seedIp=$nodeInternalIp
@@ -85,6 +85,8 @@ fi
 
 # for subsequent nodes we need to provide a cassandra seed (IP address of first deployed node) for nodes to join the cluster
 if [[ $i -ne 1 ]]; then 
+
+sleep 10 
 
 # if [[ $i -eq 2 ]];then
 # command1="cd ~ && printf \"\nseed_provider:\n  - class_name: org.apache.cassandra.locator.SimpleSeedProvider\n    - seeds: $seedIp\" >> /home/felixmedicus/cassandraA.yaml"

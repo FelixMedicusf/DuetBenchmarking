@@ -56,7 +56,7 @@ class CassandraQueries: operable{
 
     override fun transformRunOperations(operation: String, dataBaseName: String): String {
 
-        // TODO("ESCAPE SPECIAL CHARACTERS")
+
         var removedBrackets = operation.replace("[", "").replace("]","")
 
         var components: MutableList<String> = removedBrackets.split(" ").toMutableList()
@@ -109,6 +109,10 @@ class CassandraQueries: operable{
                 cassandraOperation+="WHERE field${(0..9).random()}>=\'${components[2]}\' "
 
                 cassandraOperation+="LIMIT ${components[3]} ALLOW FILTERING;"
+            }
+
+            "INSERT" -> {
+                cassandraOperation = this.transformLoadOperations(operation, dataBaseName)
             }
         }
         return cassandraOperation

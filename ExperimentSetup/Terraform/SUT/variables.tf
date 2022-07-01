@@ -18,11 +18,6 @@ variable "network-name" {
   default = "cassandra-network"
 }
 
-variable "nodes" {
-  type = list(string)
-  default = ["cassandra-node-1", "cassandra-node-2", "cassandra-node-3"]
-}
-
 variable "names_and_regions"{
   type = map(string)
 

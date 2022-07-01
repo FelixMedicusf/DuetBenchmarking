@@ -19,3 +19,7 @@ interface Operable2 {
 
 
 }
+
+fun main (){
+    println("ahhoo")
+}

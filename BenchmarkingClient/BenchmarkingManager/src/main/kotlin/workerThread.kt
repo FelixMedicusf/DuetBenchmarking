@@ -40,6 +40,8 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
         val startTimeRunning = System.currentTimeMillis()
 
 
+
+
         for((index, query) in runOperations.withIndex()){
             var nodeNumber = ipIndices[index]
             var result = sessions[nodeNumber].execute(query)

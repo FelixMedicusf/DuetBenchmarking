@@ -1,5 +1,5 @@
 -- Create a keyspace
-CREATE KEYSPACE IF NOT EXISTS ycsb WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor': 1 };
+CREATE KEYSPACE IF NOT EXISTS ycsb WITH REPLICATION = {'class' : 'NetworkTopologyStrategy', 'replication_factor': 2 };
 
 -- Use the keyspace
 USE ycsb; 

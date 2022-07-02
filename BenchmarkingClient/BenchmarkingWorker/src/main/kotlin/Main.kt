@@ -8,15 +8,26 @@ import io.ktor.features.*
 import io.ktor.request.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import WorkerThread
+import io.ktor.util.Identity.encode
+import kotlinx.serialization.encodeToString
 
 fun loadWorkload(workloadAsJson: String): List<Pair<String, String>>{
     val workloadAsList = Json.decodeFromString<List<Pair<String,String>>>(workloadAsJson)
     return workloadAsList
+}
+
+fun loadIpsAndFrequencies(IpsAndFrequenciesAsJson: String): List<Pair<String, Double>>{
+    val IpsAndFrequenciesAsList = Json.decodeFromString<List<Pair<String, Double>>>(IpsAndFrequenciesAsJson)
+    return IpsAndFrequenciesAsList
 }
 
 
@@ -31,15 +42,17 @@ var executor: ExecutorService = Executors.newFixedThreadPool(threads)
 val socketsA = mutableListOf<InetSocketAddress>()
 val socketsB = mutableListOf<InetSocketAddress>()
 var managerIp = ""
+var ipsAndFrequencies = mutableListOf<Pair<String,Double>>()
+val managerPort = "80"
+var benchmarkFinished = false
 
-
-var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
 
 fun main(args: Array<String>) {
 
     // Take as program args
+    // Default values, can also be set by Benchmarking Manager
     val ipAddresses : Array<String> = arrayOf("34.77.218.161","34.142.60.76","34.159.99.137")
-    val queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
+    var queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
     val datacenters = listOf<String>("europe-west1", "europe-west2", "europe-west3")
 
     var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
@@ -74,18 +87,47 @@ fun main(args: Array<String>) {
 
            }
 
-           post("api/setWorkload"){
-               managerIp = call.request.origin.remoteHost
+
+           post("api/setNodesAndFrequencies"){
                val content = call.receiveText()
-               workload = loadWorkload(content)
-               log.info("Received Workload with ${workload?.size} queries from $managerIp")
+               ipsAndFrequencies = loadIpsAndFrequencies(content).toMutableList()
+               for (ipAndFrequency in ipsAndFrequencies) {
+                   val socketA = InetSocketAddress(ipAndFrequency.first, 9045)
+                   val socketB = InetSocketAddress(ipAndFrequency.first, 9050)
+                   socketsA.add(socketA)
+                   socketsB.add(socketB)
+               }
+
+               queryIntensity = ipsAndFrequencies.map{it.second}.toTypedArray()
+
+               for(index in ipsAndFrequencies.indices){
+                   ipIndexAndOccurrence.put(index, queryIntensity[index])
+               }
+               log.info("Node Ips and Frequencies set")
                call.response.header("Access-Control-Allow-Origin", "*")
 
                call.respondText("OK", ContentType.Application.Any)
            }
 
-           get("api/getResults"){
 
+           post("api/setWorkload"){
+               managerIp = call.request.origin.remoteHost
+               val content = call.receiveText()
+               workload = loadWorkload(content)
+               log.info("Received Workload with ${workload?.size} queries from $managerIp")
+
+               call.response.header("Access-Control-Allow-Origin", "*")
+               call.respondText("OK", ContentType.Application.Any)
+           }
+
+           get("api/getResults"){
+                if (benchmarkFinished){
+                    val responseBody = Json.encodeToString(latencies)
+                    call.response.header("Access-Control-Allow-Origin", "*")
+                    call.respondText("OK", ContentType.Application.Json)
+                    call.respond(responseBody)
+
+                }
            }
            get("api/startBenchmark"){
 
@@ -103,97 +145,44 @@ fun main(args: Array<String>) {
                         ), workload!!,datacenters, latch, )
 
                        // Create Threadpool if more than 1 Thread per Version is necessary.
-                       // executor.execute(workerA)
-
-                       workerA.start()
+                       executor.execute(workerA)
+                      // workerA.start()
 
                        val workerB = WorkerThread("Worker-${i}b", socketsB, getSutList(
                            ipIndexAndOccurrence,
                            workload?.size ?: 0
                        ), workload!!, datacenters, latch, )
 
-                       // executor.execute(workerB)
-
-                       // executor.shutdown()
-
-                       workerB.start()
-
-
+                       executor.execute(workerB)
+                       //workerB.start()
                    }
 
                    latch.countDown()
 
+                   GlobalScope.launch {
+                       executor.shutdown()
+                       executor.awaitTermination(1, TimeUnit.HOURS)
+                       log.info("Worker Done")
+                       benchmarkFinished = true
+                       status = "waiting"
+                   }
                    log.info("Benchmark started")
+
                    call.response.header("Access-Control-Allow-Origin", "*")
                    call.respondText("OK", ContentType.Application.Json)
-
-
                }
-
-
-
+           }
+           get("api/clear"){
+               workload = null
+               status = "waiting"
+               log.info("Cleared Workload")
+               call.response.header("Access-Control-Allow-Origin", "*")
+               call.respondText("OK", ContentType.Application.Any)
            }
        }
     }.start(wait=true)
 
-/*
-    // Take as program args
-    val ipAddresses : Array<String> = arrayOf("35.187.119.157","35.195.248.109","34.77.86.239")
-    val queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
 
-    val cassandraLoadQueriesList = listOf<String>(args[0])
-    val cassandraRunQueriesList = listOf<String>(args[1])
-
-
-
-    try {
-
-        val socketsA = mutableListOf<InetSocketAddress>()
-        val socketsB = mutableListOf<InetSocketAddress>()
-
-        var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
-
-        for(index in ipAddresses.indices){
-            ipIndexAndOccurrence.put(index, queryIntensity[index])
-        }
-
-        val ipIndices = getSutList(ipIndexAndOccurrence, 1_000)
-
-
-        try {
-            for (address in ipAddresses) {
-                val socketA = InetSocketAddress(address, 9045)
-                val socketB = InetSocketAddress(address, 9050)
-                socketsA.add(socketA)
-                socketsB.add(socketB)
-            }
-
-        }catch(e: java.lang.Exception){
-            print("Unable to establish connection to one of the Cluster's Nodes!")
-            e.printStackTrace()
-        }
-
-
-        val latch = CountDownLatch(1)
-
-        var workerA1 = WorkerThread("WorkerA1", socketsA, ipIndices, cassandraLoadQueriesList, cassandraRunQueriesList, latch, )
-        workerA1.start()
-        var workerB1 = WorkerThread("WorkerB1", socketsB, ipIndices, cassandraLoadQueriesList, cassandraRunQueriesList, latch, )
-        workerB1.start()
-
-        // Resume the execution of the threads simultaneously
-        // Also possible to use CyclicBarrier Class or Phaser Class
-        latch.countDown()
-
-    } catch (e: java.lang.Exception) {
-
-
-        println("Not working")
-        println(e.printStackTrace())
-
-    }
-
- */
 }
 
 

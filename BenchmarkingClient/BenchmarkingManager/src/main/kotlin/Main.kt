@@ -64,6 +64,15 @@ suspend fun main (args: Array<String>){
     }
     */
 
+    var ipsAndFrequencies = listOf<Pair<String, Double>>(Pair("2232",0.4), Pair("4343", 0.4), Pair("23423", 0.4))
+
+    client.post("$url/api/setNodesAndFrequencies"){
+        val content = Json.encodeToString(ipsAndFrequencies)
+        setBody(content)
+    }
+
     // Start Benchmark
     client.get("$url/api/startBenchmark")
+
+
 }

@@ -35,7 +35,7 @@ suspend fun main (args: Array<String>){
 
 
 
-    var queriesWithIds = assignIdsToQueries(cassandraRunQueriesList)
+    var queriesWithIds = assignIdsToQueries(cassandraLoadQueriesList)
 
     // Replace numberOfWorker with args.size (number of ipAddresses equals number of nodes)
     var queriesPerWorkerWithIds = divideQueryList(3, queriesWithIds)
@@ -48,24 +48,22 @@ suspend fun main (args: Array<String>){
     val client = HttpClient(CIO)
     val url = "http://localhost:8080"
 
+
+    // Send every #{node}th transformed query to the worker
     client.post("$url/api/setWorkload") {
         val content = Json.encodeToString(queriesPerWorkerWithIds[0])
         setBody(content)
-
     }
+
     /*
-
-
-
-
     for ((index, ip) in workerIps.withIndex()){
         client.post(ip){
-
-                val queriesPerWorkerAsJson = Json.encodeToString(queriesPerWorkerWithIds[index])
-                setBody(queriesPerWorkerAsJson)
-
-
+             val queriesPerWorkerAsJson = Json.encodeToString(queriesPerWorkerWithIds[index])
+             setBody(queriesPerWorkerAsJson)
         }
     }
     */
+
+    // Start Benchmark
+    client.get("$url/api/startBenchmark")
 }

@@ -6,7 +6,7 @@ import java.util.concurrent.CountDownLatch
 
 
 class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAddress>, val ipIndices: List<Int>,
-                   val workload: List<Pair<String, String>>,
+                   val workload: List<Pair<String, String>>, val datacenters: List<String>,
                    private val latch: CountDownLatch): Thread() {
 
     var sessions = mutableListOf<CqlSession>()

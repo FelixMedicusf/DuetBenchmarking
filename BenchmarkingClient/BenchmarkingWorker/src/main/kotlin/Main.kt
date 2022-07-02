@@ -23,20 +23,24 @@ fun loadWorkload(workloadAsJson: String): List<Pair<String, String>>{
 
 var id: Int = 1
 var status:String = "waiting"
+
 var workload: List<Pair<String, String>>? = null
 var numberOfThreadsPerVersion: Int = 1
 var threads = numberOfThreadsPerVersion * 2
 var executor: ExecutorService = Executors.newFixedThreadPool(threads)
 val socketsA = mutableListOf<InetSocketAddress>()
 val socketsB = mutableListOf<InetSocketAddress>()
+var managerIp = ""
+
 
 var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
 
 fun main(args: Array<String>) {
 
     // Take as program args
-    val ipAddresses : Array<String> = arrayOf("35.187.119.157","35.195.248.109","34.77.86.239")
+    val ipAddresses : Array<String> = arrayOf("34.77.218.161","34.142.60.76","34.159.99.137")
     val queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
+    val datacenters = listOf<String>("europe-west1", "europe-west2", "europe-west3")
 
     var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
 
@@ -62,18 +66,21 @@ fun main(args: Array<String>) {
        routing {
            get("api/getStatus"){
                log.info("Status requested")
-               log.info("Responded $status")
+               managerIp = call.request.origin.remoteHost
+               log.info("Responded $status to $managerIp")
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText(status, ContentType.Text.Plain)
+               managerIp = call.request.origin.remoteHost
+
            }
 
            post("api/setWorkload"){
+               managerIp = call.request.origin.remoteHost
                val content = call.receiveText()
                workload = loadWorkload(content)
-               log.info("Received Workload with ${workload?.size} queries")
+               log.info("Received Workload with ${workload?.size} queries from $managerIp")
                call.response.header("Access-Control-Allow-Origin", "*")
 
-               println(workload)
                call.respondText("OK", ContentType.Application.Any)
            }
 
@@ -90,21 +97,24 @@ fun main(args: Array<String>) {
                    status = "running"
                    executor = Executors.newFixedThreadPool(threads)
                    for (i in 1 .. numberOfThreadsPerVersion){
-                        val workerA = WorkerThread("Worker${i}A", socketsA, getSutList(
+                        val workerA = WorkerThread("Worker-${i}a", socketsA, getSutList(
                             ipIndexAndOccurrence,
                             workload?.size ?: 0
-                        ), workload!!, latch)
+                        ), workload!!,datacenters, latch, )
 
+                       // Create Threadpool if more than 1 Thread per Version is necessary.
                        // executor.execute(workerA)
 
                        workerA.start()
 
-                       val workerB = WorkerThread("Worker${i}A", socketsA, getSutList(
+                       val workerB = WorkerThread("Worker-${i}b", socketsB, getSutList(
                            ipIndexAndOccurrence,
                            workload?.size ?: 0
-                       ), workload!!, latch)
+                       ), workload!!, datacenters, latch, )
 
                        // executor.execute(workerB)
+
+                       // executor.shutdown()
 
                        workerB.start()
 
@@ -116,6 +126,8 @@ fun main(args: Array<String>) {
                    log.info("Benchmark started")
                    call.response.header("Access-Control-Allow-Origin", "*")
                    call.respondText("OK", ContentType.Application.Json)
+
+
                }
 
 

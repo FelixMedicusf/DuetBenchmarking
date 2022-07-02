@@ -4,8 +4,9 @@ import java.sql.ResultSet
 import java.time.Instant
 import java.util.concurrent.CountDownLatch
 
+
 class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAddress>, val ipIndices: List<Int>,
-                   val loadOperations: List<String>, val runOperations: List<String>,
+                   val workload: List<Pair<String, String>>,
                    private val latch: CountDownLatch): Thread() {
 
     var sessions = mutableListOf<CqlSession>()
@@ -25,41 +26,25 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
 
     override fun run() {
 
+        // Implement Measurement for query latency
+
+
         // After the Threads are started they are blocked immediately
+
         latch.await()
-        println("$WorkerName started Data Loading at ${Instant.now()}")
+        println("$WorkerName started Workload Querying at ${Instant.now()}")
         val startTimeLoading = System.currentTimeMillis()
-        for((index, query) in loadOperations.withIndex()){
+        for((index, query) in workload.withIndex()){
             var nodeNumber = ipIndices[index]
-            sessions[nodeNumber].execute(query)
+            sessions[nodeNumber].execute(query.second)
         }
 
-        println("Finished Data Loading of: $WorkerName in ${System.currentTimeMillis()-startTimeLoading} milliseconds.")
-
-        println("$WorkerName started Data Running Queries at ${Instant.now()}")
-        val startTimeRunning = System.currentTimeMillis()
-
-
-
-
-        for((index, query) in runOperations.withIndex()){
-            var nodeNumber = ipIndices[index]
-            var result = sessions[nodeNumber].execute(query)
-            runResults.add(result)
-        }
-
+        println("Finished Workload Querying of: $WorkerName in ${System.currentTimeMillis()-startTimeLoading} milliseconds.")
 
         for(session in sessions){
             session.close()
         }
 
-        println("Finished Running Phase of: $WorkerName in ${System.currentTimeMillis()-startTimeRunning} milliseconds.")
-
-        println("Overall Execution time of $WorkerName are ${System.currentTimeMillis()-startTimeLoading} milliseconds.")
-
     }
 
 }
-    fun main(){
-        println("hallo welt")
-    }

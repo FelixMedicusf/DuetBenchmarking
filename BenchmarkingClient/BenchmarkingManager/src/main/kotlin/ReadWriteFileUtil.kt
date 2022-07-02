@@ -1,6 +1,6 @@
 import java.io.File
 
-fun writeOperationsToFile (fileName: String, operationsList: List<String>, transformLine:(String, String) -> String ){
+fun writeTransformedOperationsToFile (fileName: String, operationsList: List<String>, transformLine:(String, String) -> String ){
     var file = File(fileName)
 
     file.printWriter().use { out ->
@@ -9,6 +9,16 @@ fun writeOperationsToFile (fileName: String, operationsList: List<String>, trans
         }
     }
 
+}
+
+fun writeOperationsToFile (fileName: String , listToWrite: List<Pair<String, String>>){
+    var file = File(fileName)
+
+    file.printWriter().use{out ->
+        for(line in listToWrite){
+            out.println(line)
+        }
+    }
 }
 
 fun returnListFromInsertData (fileName : String) : List<String> {

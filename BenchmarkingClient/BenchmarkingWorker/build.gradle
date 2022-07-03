@@ -6,12 +6,19 @@ plugins {
 
 apply plugin: 'application'
 
-group = 'org.example'
-version = '1.0-SNAPSHOT'
+group = 'Tu-Berlin'
+version = 'final-worker'
 
 repositories {
     mavenCentral()
 }
+
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin/'
+    test.java.srcDirs += 'src/test/kotlin/'
+}
+
+
 
 dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-test:1.7.0'
@@ -32,6 +39,20 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:1.2.3"
 
 }
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    destinationDirectory.set(file("/jar/"))
+    manifest {
+        attributes "Main-Class": "MainKt"
+    }
+
+    from {
+
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+
 
 test {
     useJUnitPlatform()

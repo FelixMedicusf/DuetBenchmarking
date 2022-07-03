@@ -1,4 +1,5 @@
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import kotlinx.serialization.encodeToString
@@ -48,7 +49,14 @@ suspend fun main (args: Array<String>){
     val client = HttpClient(CIO)
     val url = "http://localhost:8080"
 
+    var id = 2
 
+    client.get("$url/api/setId?id=$id"){
+
+    }
+
+    var workerId = client.get("$url/api/getId").body<String>()
+    println(workerId)
     // Send every #{node}th transformed query to the worker
     client.post("$url/api/setWorkload") {
         val content = Json.encodeToString(queriesPerWorkerWithIds[0])
@@ -64,7 +72,8 @@ suspend fun main (args: Array<String>){
     }
     */
 
-    var ipsAndFrequencies = listOf<Pair<String, Double>>(Pair("2232",0.4), Pair("4343", 0.4), Pair("23423", 0.4))
+    var ipsAndFrequencies = listOf<Pair<String, Double>>(Pair("34.77.218.161",0.4), Pair("34.142.60.76", 0.4),
+        Pair("34.159.99.137", 0.4))
 
     client.post("$url/api/setNodesAndFrequencies"){
         val content = Json.encodeToString(ipsAndFrequencies)

@@ -2,9 +2,11 @@ import com.datastax.oss.driver.api.core.CqlSession
 import java.net.InetSocketAddress
 import java.sql.ResultSet
 import java.time.Instant
+import java.util.Collections
 import java.util.concurrent.CountDownLatch
 
-var latencies = mutableListOf<Triple<String, Long, Long>>()
+var latencies = Collections.synchronizedList(mutableListOf<Triple<String, Long, Long>>())
+
 
 class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAddress>, val ipIndices: List<Int>,
                    val workload: List<Pair<String, String>>, val datacenters: List<String>,
@@ -36,7 +38,7 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
             sessions[nodeNumber].execute(query.second)
             val endTimeSingleQuery = System.currentTimeMillis()
 
-            latencies.add(Triple(query.first, startTimeSingleQuery, endTimeSingleQuery))
+            latencies.add(Triple("${query.first}/${WorkerName}", startTimeSingleQuery, endTimeSingleQuery))
 
         }
 

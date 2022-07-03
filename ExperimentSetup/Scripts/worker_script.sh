@@ -19,7 +19,10 @@ nodeInternalIp="$(gcloud compute instances describe $currentInstanceName --zone=
 
 echo "Provisioning $currentInstanceName"
 
-gcloud compute ssh --zone $zone $currentInstanceName -- ''
+gcloud compute ssh --zone $zone $currentInstanceName -- 'sudo apt-get install git-all'
+gcloud compute ssh --zone $zone $currentInstanceName -- 'sudo git clone https://github.com/FelixMedicusf/DuetBenchmarking'
+gcloud compute ssh --zone $zone $currentInstanceName -- 'cd DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && java -jar BenchmarkingWorker-final-worker.jar'
+
 
 
 

@@ -19,7 +19,8 @@ nodeInternalIp="$(gcloud compute instances describe $currentInstanceName --zone=
 
 echo "Starting Worker in $currentInstanceName"
 
-gcloud compute ssh --zone $zone $currentInstanceName -- 'wget -P ~/ https://github.com/FelixMedicusf/DuetBenchmarking/archive/master.zip && unzip ~/master.zip'
+gcloud compute ssh --zone $zone $currentInstanceName -- 'sudo apt update && sudo apt install git'
+gcloud compute ssh --zone $zone $currentInstanceName -- 'git clone https://github.com/FelixMedicusf/DuetBenchmarking'
 gcloud compute ssh --zone $zone $currentInstanceName -- 'cd ~/DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && java -jar BenchmarkingWorker-final-worker.jar'
 
 

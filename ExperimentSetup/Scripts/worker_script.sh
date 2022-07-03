@@ -6,7 +6,7 @@ value="worker"
 nodeNumber="$(echo -n $instances | grep -Fo $value | wc -l)"
 
 instanceGroupName=${name:-worker}
-read  -p "Enter Instance group name in which you want to deploy Cassandra Docker Container Network: " instanceGroupName
+read  -p "Enter Instance group name in which you want to deploy Workers: " instanceGroupName
 
 # Loop through all deployed nodes to provision them with Cassandra Container
 for (( i=1; i <= $nodeNumber; ++i ))
@@ -17,11 +17,11 @@ zone="$(gcloud compute instances list --filter="name=$currentInstanceName" --for
 nodeExternalIp="$(gcloud compute instances describe $currentInstanceName --zone=$zone --format='get(networkInterfaces[0].accessConfigs[0].natIP)')"
 nodeInternalIp="$(gcloud compute instances describe $currentInstanceName --zone=$zone --format='get(networkInterfaces[0].networkIP)')"
 
-echo "Provisioning $currentInstanceName"
+echo "Starting Worker in $currentInstanceName"
 
-gcloud compute ssh --zone $zone $currentInstanceName -- 'sudo apt-get install git-all'
-gcloud compute ssh --zone $zone $currentInstanceName -- 'sudo git clone https://github.com/FelixMedicusf/DuetBenchmarking'
-gcloud compute ssh --zone $zone $currentInstanceName -- 'cd DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && java -jar BenchmarkingWorker-final-worker.jar'
+gcloud compute ssh --zone $zone $currentInstanceName -- 'wget -P ~/ https://github.com/FelixMedicusf/DuetBenchmarking/archive/master.zip && unzip ~/master.zip'
+gcloud compute ssh --zone $zone $currentInstanceName -- 'cd ~/DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && java -jar BenchmarkingWorker-final-worker.jar'
+
 
 
 

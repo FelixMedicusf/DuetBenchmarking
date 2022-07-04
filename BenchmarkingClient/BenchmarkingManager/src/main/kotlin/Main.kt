@@ -47,7 +47,7 @@ suspend fun main (args: Array<String>){
 
 
     val client = HttpClient(CIO)
-    val url = "34.77.218.161:8080"
+    val url = "http://35.205.205.137:8080"
 
     var id = 2
 

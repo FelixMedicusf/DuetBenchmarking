@@ -12,7 +12,7 @@ var results = mutableListOf<Triple<String, Long, Long,>>()
 suspend fun main(){
 
 val client = HttpClient(CIO)
-val url = "http://34.77.218.161:8080"
+val url = "http://35.205.205.137:8080"
 
 
     val results: String= client.get("$url/api/getResults").body()

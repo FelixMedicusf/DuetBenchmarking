@@ -41,3 +41,12 @@ fun returnQueryListFromFile(fileName: String) : List<String> {
     }
     return lines;
 }
+
+fun writeResultsToFile(fileName: String, measurements: List<Triple<String, Long, Long>>): Unit {
+    var file = File(fileName)
+    file.printWriter().use { out ->
+        for (measurement in measurements) {
+            out.println(measurement)
+        }
+    }
+}

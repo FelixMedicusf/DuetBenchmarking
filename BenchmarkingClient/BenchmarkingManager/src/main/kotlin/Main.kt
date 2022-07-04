@@ -1,21 +1,50 @@
+import com.beust.jcommander.JCommander
+import com.beust.jcommander.Parameter
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import kotlinx.coroutines.Deferred
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 
-suspend fun main (args: Array<String>){
+
+suspend fun main (vararg argv: String){
 
     val workloadAPath = "src\\main\\resources\\workloadA"
     val workloadCPath = "src\\main\\resources\\workloadC"
     val workloadEPath = "src\\main\\resources\\workloadE"
 
+
+
     // Passes as Arguments to jar file in the end ...
     val queryNumber = 5
-    val workerIps = args
+    // val workerIps = argv
 
     val listOfIds = mutableListOf<String>()
+
+    val args = Args()
+    JCommander.newBuilder()
+        .addObject(args)
+        .build()
+        .parse(*argv);
+
+    println("workers --> ${args.workerIps}")
+
+    println("nodes --> ${args.cassandraNodeIps}")
+
+    println("Frequencies --> ${args.frequencies}")
+
+    println("Workload --> ${args.workload}")
+
+    println("Regions --> ${args.regions}")
+
+    println("Operations --> ${args.operations}")
+
 
     val ca = CassandraQueries()
 
@@ -45,43 +74,63 @@ suspend fun main (args: Array<String>){
     var file = "src\\main\\resources\\newFile.txt"
 
 
+    // Carry out following operations for all workers
 
-    val client = HttpClient(CIO)
-    val url = "http://35.205.205.137:8080"
-
-    var id = 2
-
-    client.get("$url/api/setId?id=$id"){
-
-    }
-
-    var workerId = client.get("$url/api/getId").body<String>()
-    println(workerId)
-    // Send every #{node}th transformed query to the worker
-    client.post("$url/api/setWorkload") {
-        val content = Json.encodeToString(queriesPerWorkerWithIds[0])
-        setBody(content)
-    }
-
-    /*
-    for ((index, ip) in workerIps.withIndex()){
-        client.post(ip){
-             val queriesPerWorkerAsJson = Json.encodeToString(queriesPerWorkerWithIds[index])
-             setBody(queriesPerWorkerAsJson)
+    val client = HttpClient(CIO){
+        // disable request timeout cause benchmark takes time
+        engine {
+            requestTimeout = 0
         }
     }
-    */
 
-    var ipsAndFrequencies = listOf<Pair<String, Double>>(Pair("34.77.218.161",0.4), Pair("34.142.60.76", 0.4),
-        Pair("34.159.99.137", 0.4))
+    var ipsAndFrequencies = mutableListOf<Pair<String, Double>>()
 
-    client.post("$url/api/setNodesAndFrequencies"){
-        val content = Json.encodeToString(ipsAndFrequencies)
-        setBody(content)
+    for (i in 0 until args.cassandraNodeIps.size){
+        ipsAndFrequencies.add(Pair(args.cassandraNodeIps[i], args.frequencies[i]))
     }
 
-    // Start Benchmark
-    client.get("$url/api/startBenchmark")
+    for((index, ip) in args.workerIps.withIndex()) {
+
+        val url = "http://$ip:8080"
+
+        client.get("$url/api/setId?id=${index+1}") {
+
+        }
+
+        var workerId = client.get("$url/api/getId").body<String>()
+
+        // Send every #{node}th transformed query to the worker
+        client.post("$url/api/setWorkload") {
+            val content = Json.encodeToString(queriesPerWorkerWithIds[index])
+            setBody(content)
+        }
+
+
+        client.post("$url/api/setNodesAndFrequencies") {
+            val content = Json.encodeToString(ipsAndFrequencies)
+            setBody(content)
+        }
+
+    }
+        var totalMeasurements = mutableListOf<Triple<String, Long, Long>>()
+        var responses = mutableListOf<Deferred<String>>()
+
+        // Start Benchmark ("simultaneously")
+        runBlocking {
+            for(ip in args.workerIps) {
+                val url = "http://$ip:8080"
+                val response = async {client.get("$url/api/startBenchmark").bodyAsText()}
+                responses.add(response)
+            }
+            for(response in responses){
+                totalMeasurements += (Json.decodeFromString<List<Triple<String, Long, Long>>>(response.await()))
+
+            }
+        }
+
+    // write Results to file
+    writeResultsToFile("C:\\Users\\Felix Medicus\\Dokumente\\measurements.dat", totalMeasurements)
+
 
 
 }

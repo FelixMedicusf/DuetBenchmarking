@@ -17,9 +17,12 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import WorkerThread
+import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.util.Identity.encode
 import kotlinx.serialization.encodeToString
+import io.ktor.client.engine.cio.*
+import java.util.Collections
 
 fun loadWorkload(workloadAsJson: String): List<Pair<String, String>>{
     val workloadAsList = Json.decodeFromString<List<Pair<String,String>>>(workloadAsJson)
@@ -37,6 +40,10 @@ var id: Int = 1
 var status:String = "waiting"
 
 var workload: List<Pair<String, String>>? = null
+// var workloadA = Collections.synchronizedList(listOf<Pair<String, String>>())
+// var workloadB = Collections.synchronizedList(listOf<Pair<String, String>>())
+var operationsPerWorker = 0;
+
 var numberOfThreadsPerVersion: Int = 1
 var threads = numberOfThreadsPerVersion * 2
 var executor: ExecutorService = Executors.newFixedThreadPool(threads)
@@ -44,7 +51,6 @@ var socketsA = mutableListOf<InetSocketAddress>()
 var socketsB = mutableListOf<InetSocketAddress>()
 var managerIp = ""
 var ipsAndFrequencies = mutableListOf<Pair<String,Double>>()
-val managerPort = "80"
 var benchmarkFinished = false
 
 
@@ -119,15 +125,26 @@ fun main(args: Array<String>) {
            get("api/setId"){
                managerIp = call.request.origin.remoteHost
                log.info("Request from $managerIp to set Worker id to ${call.parameters["id"]}")
-                id = call.parameters["id"]?.toInt() ?: id
+               id = call.parameters["id"]?.toInt() ?: id
                call.respondText("OK", ContentType.Application.Any)
            }
 
            get("api/getId"){
                log.info("Request from $managerIp to get Id of Worker")
                call.response.header("Access-Control-Allow-Origin", "*")
-
                call.respondText(id.toString(), ContentType.Application.Any)
+           }
+
+           get("api/setThreads"){
+               log.info("Request to set total number of Threads (for Version A and B) to ${call.parameters["threads"]}")
+               threads = call.parameters["threads"]?.toInt() ?: 2
+               numberOfThreadsPerVersion = (threads/2)
+               operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
+               log.info("Set total number of threads to $threads and threads per version to $numberOfThreadsPerVersion")
+
+               call.response.header("Access-Control-Allow-Origin", "*")
+               call.respondText("Ok", ContentType.Application.Any)
+
            }
 
            post("api/setWorkload"){
@@ -135,8 +152,10 @@ fun main(args: Array<String>) {
                managerIp = call.request.origin.remoteHost
                val content = call.receiveText()
                workload = loadWorkload(content)
+               workloadA = loadWorkload(content)
+               workloadB = loadWorkload(content)
                log.info("Received Workload with ${workload?.size} queries from $managerIp")
-
+               operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText("OK", ContentType.Application.Any)
            }
@@ -152,7 +171,6 @@ fun main(args: Array<String>) {
                     log.info("Requested Results before conducting Benchmark")
                     call.response.header("Access-Control-Allow-Origin", "*")
                     call.respondText("No results available yet", ContentType.Application.Json)
-                    call.respond("Hier läuft was schief")
                 }
            }
            get("api/startBenchmark"){
@@ -167,7 +185,7 @@ fun main(args: Array<String>) {
                    for (i in 1 .. numberOfThreadsPerVersion){
                         val workerA = WorkerThread("Worker-${i}a", socketsA, getSutList(
                             ipIndexAndOccurrence,
-                            workload?.size ?: 0
+                            ((workload?.size)) ?: 0
                         ), workload!!,datacenters, latch, )
 
                        // Create Threadpool if more than 1 Thread per Version is necessary.
@@ -191,13 +209,16 @@ fun main(args: Array<String>) {
                        log.info("Worker Done")
                        benchmarkFinished = true
                        status = "waiting"
-                       println(latencies)
                        log.info("Length of Measurements for both Threads: ${latencies.size}")
                    }
-                   log.info("Benchmark started")
 
+
+                   log.info("Benchmark started")
+                   executor.awaitTermination(1, TimeUnit.HOURS)
                    call.response.header("Access-Control-Allow-Origin", "*")
-                   call.respondText("OK", ContentType.Application.Json)
+                   call.respondText(Json.encodeToString(latencies), ContentType.Application.Json)
+
+
                }
            }
            get("api/clear"){

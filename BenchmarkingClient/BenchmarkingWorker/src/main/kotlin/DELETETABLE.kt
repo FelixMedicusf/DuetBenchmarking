@@ -3,7 +3,7 @@ import java.net.InetSocketAddress
 
 
 
-val ipAddresses : Array<String> = arrayOf("35.195.105.5","34.142.60.76","34.159.99.137")
+val ipAddresses : Array<String> = arrayOf("34.78.63.44","35.189.111.242","34.159.113.65")
 
 fun main() {
     val socketsA = mutableListOf<InetSocketAddress>()
@@ -19,7 +19,6 @@ fun main() {
 
     deleteAll(socketsA)
     deleteAll(socketsB)
-
 
 }
 

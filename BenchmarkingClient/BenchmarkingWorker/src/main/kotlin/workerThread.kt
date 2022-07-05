@@ -39,7 +39,7 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
         println("$WorkerName started Workload Querying at ${Instant.now()}")
         val startTime = System.currentTimeMillis()
 
-        if (numberOfThreadsPerVersion == 1) {
+
             for ((index, query) in workload.withIndex()) {
                 var nodeNumber = ipIndices[index]
                 val startTimeSingleQuery = System.currentTimeMillis()
@@ -49,7 +49,8 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
                 latencies.add(Triple("${query.first}/${WorkerName}", startTimeSingleQuery, endTimeSingleQuery))
 
             }
-        }
+
+        /*
         if (numberOfThreadsPerVersion > 1) {
             if (WorkerName.contains("a")) {
 
@@ -89,7 +90,7 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
             }
         }
 
-
+         */
         println("Finished Workload Querying of: $WorkerName in ${System.currentTimeMillis() - startTime} milliseconds.")
 
         for (session in sessions) {

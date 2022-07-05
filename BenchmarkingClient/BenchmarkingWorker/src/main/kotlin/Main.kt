@@ -23,6 +23,7 @@ import io.ktor.util.Identity.encode
 import kotlinx.serialization.encodeToString
 import io.ktor.client.engine.cio.*
 import java.util.Collections
+import kotlin.math.ceil
 
 fun loadWorkload(workloadAsJson: String): List<Pair<String, String>>{
     val workloadAsList = Json.decodeFromString<List<Pair<String,String>>>(workloadAsJson)
@@ -174,7 +175,7 @@ fun main(args: Array<String>) {
                 }
            }
            get("api/startBenchmark"){
-
+               latencies.clear()
                val latch = CountDownLatch(1)
 
                if (workload == null)log.info("Attempt to start Benchmark without prior set Workload. Abort benchmark start!")
@@ -186,7 +187,8 @@ fun main(args: Array<String>) {
                         val workerA = WorkerThread("Thread-${i}a-Worker-$id", socketsA, getSutList(
                             ipIndexAndOccurrence,
                             ((workload?.size)) ?: 0
-                        ), workload!!,datacenters, latch, )
+                        ),
+                            divideListForThreads(workload!!)?.get(i-1) ?: emptyList() ,datacenters, latch, )
 
                        // Create Threadpool if more than 1 Thread per Version is necessary.
                        executor.execute(workerA)
@@ -231,6 +233,21 @@ fun main(args: Array<String>) {
            }
        }
     }.start(wait=true)
+
+
+}
+
+fun divideListForThreads(workload :List<Pair<String, String>>):List<List<Pair<String, String>>>?{
+    var chunkedList = emptyList<List<Pair<String, String>>>()
+    if (numberOfThreadsPerVersion == 1){
+        chunkedList = workload.chunked(workload.size)
+    }
+    if (numberOfThreadsPerVersion == 2){
+        var middleIndex = ceil(workload.size.toDouble()/2).toInt()
+        chunkedList = workload.chunked(middleIndex)
+    }
+
+    return chunkedList
 
 
 }

@@ -21,10 +21,7 @@ echo "Starting Worker in $currentInstanceName"
 
 gcloud compute ssh --zone $zone $currentInstanceName -- 'sudo apt update && sudo apt install git'
 gcloud compute ssh --zone $zone $currentInstanceName -- 'git clone https://github.com/FelixMedicusf/DuetBenchmarking'
+echo "Attempt to start Server in $currentInstanceName"
 gcloud compute ssh --zone $zone $currentInstanceName -- "cd ~/DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && java -jar BenchmarkingWorker-final-worker.jar > ~/worker$i.log &"
-
-
-
-
 
 done

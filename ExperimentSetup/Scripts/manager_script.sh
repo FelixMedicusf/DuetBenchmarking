@@ -1,6 +1,8 @@
 #!/bin/bash
 # Set the totalNumberOfOperations as Script Input Parameter (default value=10000)
 totalNumberOfOperations="${1:-10000}"
+frequencies = (0.5 0.6 0.7)
+
 
 
 echo "Specified number of operations: $totalNumberOfOperations"
@@ -71,13 +73,13 @@ echo "${workerExternalIps[@]}"
 # cassandraNodeFrequencies = [] 
 # cassandraNodeRegions = [] (cassandraRegions) (array)
 # workerIps = [] (workerExternalIps) (array)
-# totalNumberOfOperations = [] (totalNumberOfOperations) (number? int?)
 # pathToWorkload = [] ("~/load_operations.dat" oder "~/run_operations.dat")
+# -r flag if run benchmark, nothing for load benchmark
 
 # Format java -jar <jar_name> 
-# -n 34.77.58.26,34.142.60.76,34.142.60.76 -w 35.205.205.137,35.189.111.242,34.159.113.65 -l 10000 
-# -f 0.4,0.5,0.6 -r europe-west1-b,europe-west2-b,europe-west3-b -wl Documents/DuetBenchmarking/load_operations.dat
+# -n 34.77.58.26,34.142.60.76,34.142.60.76 -w 35.205.205.137,35.189.111.242,34.159.113.65
+# -f 0.4,0.5,0.6 -r europe-west1-b,europe-west2-b,europe-west3-b -wl Documents/DuetBenchmarking/load_operations.dat <-r>
 
 
 # git clone https://github.com/FelixMedicusf/DuetBenchmarking
-# cd ~/DuetBenchmarking/BenchmarkingClient/BenchmarkingManager/jar && java -jar BenchmarkingWorker-final-worker.jar -n 34.77.58.26,34.142.60.76,34.142.60.76 -w 35.205.205.137,35.189.111.242,34.159.113.65 -l 10000 -f 0.4,0.5,0.6 -r europe-west1-b,europe-west2-b,europe-west3-b -wl Documents/DuetBenchmarking/load_operations.dat
+# cd ~/DuetBenchmarking/BenchmarkingClient/BenchmarkingManager/jar && java -jar BenchmarkingWorker-final-worker.jar -n 34.77.58.26,34.142.60.76,34.142.60.76 -w 35.205.205.137,35.189.111.242,34.159.113.65 -f 0.4,0.5,0.6 -r europe-west1-b,europe-west2-b,europe-west3-b -wl ~/Documents/DuetBenchmarking/load_operations.dat

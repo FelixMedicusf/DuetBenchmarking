@@ -50,3 +50,10 @@ fun writeResultsToFile(fileName: String, measurements: List<Triple<String, Long,
         }
     }
 }
+
+
+
+fun main (){
+    var totalMeasurements = mutableListOf<Triple<String, Long, Long>>(Triple("213", 1, 3), Triple("233", 1, 3))
+    writeResultsToFile("C:\\Users\\Felix Medicus\\Dokumente\\measurements.dat", totalMeasurements)
+}

@@ -20,13 +20,6 @@ suspend fun main (vararg argv: String){
     val workloadEPath = "src\\main\\resources\\workloadE"
 
 
-
-    // Passes as Arguments to jar file in the end ...
-    val queryNumber = 5
-    // val workerIps = argv
-
-    val listOfIds = mutableListOf<String>()
-
     val args = Args()
     JCommander.newBuilder()
         .addObject(args)
@@ -43,39 +36,37 @@ suspend fun main (vararg argv: String){
 
     println("Regions --> ${args.regions}")
 
-    println("Operations --> ${args.operations}")
+    println("Run --> ${args.run}")
 
+    if(args.run)args.workload="src\\main\\resources\\workloadA_10000\\run_operations_10000.dat"
+
+    var pathToTransformedOps = ""
+    if(!args.run)pathToTransformedOps = "src\\main\\resources\\workloadA_10000\\cassandra_load_operations_10000.dat"
+    if(args.run)pathToTransformedOps = "src\\main\\resources\\workloadA_10000\\cassandra_run_operations_10000.dat"
 
     val ca = CassandraQueries()
 
-    val genericLoadQueriesList = returnQueryListFromFile("$workloadEPath\\load_operations.dat")
+    var genericQueriesList: List<String>
 
-    writeTransformedOperationsToFile("$workloadEPath\\load_operations_cassandra.dat", genericLoadQueriesList,
-        ca::transformLoadOperations)
+    if(!args.run) {
+        genericQueriesList = returnQueryListFromFile(args.workload)
+        writeTransformedOperationsToFile(pathToTransformedOps, genericQueriesList,
+            ca::transformLoadOperations)
+    }
+    if(args.run){
+        genericQueriesList = returnQueryListFromFile(args.workload)
+        writeTransformedOperationsToFile(pathToTransformedOps, genericQueriesList,
+            ca::transformRunOperations)
+    }
 
-    val genericRunQueriesList = returnQueryListFromFile("$workloadEPath\\run_operations.dat")
+    var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps)
 
-    writeTransformedOperationsToFile("$workloadEPath\\run_operations_cassandra.dat", genericRunQueriesList,
-        ca::transformRunOperations)
-
-    var cassandraLoadQueriesList = returnQueryListFromFile("$workloadEPath\\load_operations_cassandra.dat")
-
-    var cassandraRunQueriesList = returnQueryListFromFile("$workloadEPath\\run_operations_cassandra.dat")
-
-
-
-
-    var queriesWithIds = assignIdsToQueries(cassandraLoadQueriesList)
+    var queriesWithIds = assignIdsToQueries(cassandraQueriesList)
 
     // Replace numberOfWorker with args.size (number of ipAddresses equals number of nodes)
     var queriesPerWorkerWithIds = divideQueryList(3, queriesWithIds)
 
-
-    var file = "src\\main\\resources\\newFile.txt"
-
-
     // Carry out following operations for all workers
-
     val client = HttpClient(CIO){
         // disable request timeout cause benchmark takes time
         engine {
@@ -111,6 +102,9 @@ suspend fun main (vararg argv: String){
             setBody(content)
         }
 
+        val numberOfThreadsPerWorkerNode = 2
+        client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerNode}")
+
     }
         var totalMeasurements = mutableListOf<Triple<String, Long, Long>>()
         var responses = mutableListOf<Deferred<String>>()
@@ -128,8 +122,17 @@ suspend fun main (vararg argv: String){
             }
         }
 
+    println("Received all measurements from all workers!")
+
     // write Results to file
+    try {
     writeResultsToFile("C:\\Users\\Felix Medicus\\Dokumente\\measurements.dat", totalMeasurements)
+    writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+    }catch(e: java.lang.Exception){
+
+    }
+
+    println("Wrote all measurements to file ~/Documents/DuetBenchmarking/measurements.dat")
 
 
 

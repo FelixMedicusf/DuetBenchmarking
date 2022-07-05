@@ -42,7 +42,7 @@ var status:String = "waiting"
 var workload: List<Pair<String, String>>? = null
 // var workloadA = Collections.synchronizedList(listOf<Pair<String, String>>())
 // var workloadB = Collections.synchronizedList(listOf<Pair<String, String>>())
-var operationsPerWorker = 0;
+// var operationsPerWorker = 0;
 
 var numberOfThreadsPerVersion: Int = 1
 var threads = numberOfThreadsPerVersion * 2
@@ -139,7 +139,7 @@ fun main(args: Array<String>) {
                log.info("Request to set total number of Threads (for Version A and B) to ${call.parameters["threads"]}")
                threads = call.parameters["threads"]?.toInt() ?: 2
                numberOfThreadsPerVersion = (threads/2)
-               operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
+               // operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
                log.info("Set total number of threads to $threads and threads per version to $numberOfThreadsPerVersion")
 
                call.response.header("Access-Control-Allow-Origin", "*")
@@ -155,7 +155,7 @@ fun main(args: Array<String>) {
                workloadA = loadWorkload(content)
                workloadB = loadWorkload(content)
                log.info("Received Workload with ${workload?.size} queries from $managerIp")
-               operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
+               // operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText("OK", ContentType.Application.Any)
            }
@@ -175,7 +175,7 @@ fun main(args: Array<String>) {
            }
            get("api/startBenchmark"){
 
-               val latch = CountDownLatch(threads - 1)
+               val latch = CountDownLatch(1)
 
                if (workload == null)log.info("Attempt to start Benchmark without prior set Workload. Abort benchmark start!")
                else {
@@ -183,7 +183,7 @@ fun main(args: Array<String>) {
                    status = "running"
                    executor = Executors.newFixedThreadPool(threads)
                    for (i in 1 .. numberOfThreadsPerVersion){
-                        val workerA = WorkerThread("Worker-${i}a", socketsA, getSutList(
+                        val workerA = WorkerThread("Thread-${i}a-Worker-$id", socketsA, getSutList(
                             ipIndexAndOccurrence,
                             ((workload?.size)) ?: 0
                         ), workload!!,datacenters, latch, )
@@ -192,7 +192,7 @@ fun main(args: Array<String>) {
                        executor.execute(workerA)
                       // workerA.start()
 
-                       val workerB = WorkerThread("Worker-${i}b", socketsB, getSutList(
+                       val workerB = WorkerThread("Thread--${i}b-Worker-$id", socketsB, getSutList(
                            ipIndexAndOccurrence,
                            workload?.size ?: 0
                        ), workload!!, datacenters, latch, )
@@ -201,10 +201,11 @@ fun main(args: Array<String>) {
                        //workerB.start()
                    }
 
-                   latch.countDown()
+
 
                    GlobalScope.launch {
                        executor.shutdown()
+                       latch.countDown()
                        executor.awaitTermination(1, TimeUnit.HOURS)
                        log.info("Worker Done")
                        benchmarkFinished = true

@@ -28,6 +28,7 @@ fun assignIdsToQueries(queryList: List<String>):List<Pair<String, String>> {
     var idList = mutableListOf<String>()
 
     for (i in queryList.indices) {
+        // Might produce same Ids.
         var id = UUID.randomUUID().toString();
         idList.add(id)
     }

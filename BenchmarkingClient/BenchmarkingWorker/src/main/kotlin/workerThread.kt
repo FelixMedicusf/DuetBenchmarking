@@ -11,18 +11,18 @@ var latencies = Collections.synchronizedList(mutableListOf<Triple<String, Long, 
 var workloadA = Collections.synchronizedList(listOf<Pair<String, String>>())
 var workloadB = Collections.synchronizedList(listOf<Pair<String, String>>())
 
-var indexA = 0
-var indexB = 0
+var indexA: AtomicInteger = AtomicInteger(0)
+var indexB: AtomicInteger = AtomicInteger(0)
 
 
 class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAddress>, val ipIndices: List<Int>,
-                   val workload: List<Pair<String, String>>, val datacenters: List<String>,
+                   val workload: List<Pair<String, String>>, private val datacenters: List<String>,
                    private val latch: CountDownLatch): Thread() {
 
     var sessions = mutableListOf<CqlSession>()
 
     init {
-        for((index, socket) in sockets.withIndex()){
+        for ((index, socket) in sockets.withIndex()) {
 
             var builder = CqlSession.builder().withLocalDatacenter(datacenters[index])
             builder.addContactPoint(socket)
@@ -39,7 +39,7 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
         println("$WorkerName started Workload Querying at ${Instant.now()}")
         val startTime = System.currentTimeMillis()
 
-        if(numberOfThreadsPerVersion==1) {
+        if (numberOfThreadsPerVersion == 1) {
             for ((index, query) in workload.withIndex()) {
                 var nodeNumber = ipIndices[index]
                 val startTimeSingleQuery = System.currentTimeMillis()
@@ -50,47 +50,45 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
 
             }
         }
-        if(numberOfThreadsPerVersion>1) {
+        if (numberOfThreadsPerVersion > 1) {
             if (WorkerName.contains("a")) {
 
-                    while (indexA < workloadA.size) {
-                        synchronized(this) {
-                            var nodeNumber = ipIndices[indexA]
-                            val startTimeSingleQuery = System.currentTimeMillis()
-                            sessions[nodeNumber].execute(workloadA[indexA].second)
-                            val endTimeSingleQuery = System.currentTimeMillis()
+                while (indexA.get() < workloadA.size) {
+                    val index = indexA.getAndIncrement()
+                    var nodeNumber = ipIndices[index]
+                    val startTimeSingleQuery = System.currentTimeMillis()
+                    sessions[nodeNumber].execute(workloadA[index].second)
+                    val endTimeSingleQuery = System.currentTimeMillis()
 
-                            latencies.add(
-                                Triple(
-                                    "${workloadA[indexA].first}/${WorkerName}",
-                                    startTimeSingleQuery,
-                                    endTimeSingleQuery
-                                )
-                            )
-                            indexA++
-                        }
-                    }
-                }
-            if (WorkerName.contains("b")) {
-                while (indexB < workloadB.size) {
-                    synchronized(this) {
-                        var nodeNumber = ipIndices[indexB]
-                        val startTimeSingleQuery = System.currentTimeMillis()
-                        sessions[nodeNumber].execute(workloadB[indexB].second)
-                        val endTimeSingleQuery = System.currentTimeMillis()
-
-                        latencies.add(
-                            Triple(
-                                "${workloadB[indexB].first}/${WorkerName}",
-                                startTimeSingleQuery,
-                                endTimeSingleQuery
-                            )
+                    latencies.add(
+                        Triple(
+                            "${workloadA[index].first}/${WorkerName}",
+                            startTimeSingleQuery,
+                            endTimeSingleQuery
                         )
-                        indexB++
-                    }
+                    )
+
                 }
             }
         }
+        if (WorkerName.contains("b")) {
+            while (indexB.get() < workloadB.size) {
+                var index = indexB.getAndIncrement()
+                var nodeNumber = ipIndices[index]
+                val startTimeSingleQuery = System.currentTimeMillis()
+                sessions[nodeNumber].execute(workloadB[index].second)
+                val endTimeSingleQuery = System.currentTimeMillis()
+
+                latencies.add(
+                    Triple(
+                        "${workloadB[index].first}/${WorkerName}",
+                        startTimeSingleQuery,
+                        endTimeSingleQuery
+                    )
+                )
+            }
+        }
+
 
         println("Finished Workload Querying of: $WorkerName in ${System.currentTimeMillis() - startTime} milliseconds.")
 
@@ -99,3 +97,4 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
         }
     }
 }
+

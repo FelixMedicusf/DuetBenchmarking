@@ -42,7 +42,7 @@ fun returnQueryListFromFile(fileName: String) : List<String> {
     return lines;
 }
 
-fun writeResultsToFile(fileName: String, measurements: List<Triple<String, Long, Long>>): Unit {
+fun writeMeasurementsToFile(fileName: String, measurements: List<Measurement>): Unit {
     var file = File(fileName)
     file.printWriter().use { out ->
         for (measurement in measurements) {
@@ -51,9 +51,8 @@ fun writeResultsToFile(fileName: String, measurements: List<Triple<String, Long,
     }
 }
 
-
-
 fun main (){
-    var totalMeasurements = mutableListOf<Triple<String, Long, Long>>(Triple("213", 1, 3), Triple("233", 1, 3))
-    writeResultsToFile("C:\\Users\\Felix Medicus\\Dokumente\\measurements.dat", totalMeasurements)
+    var totalMeasurements = mutableListOf<Measurement>(Measurement("workera", "create this", "aefef",24 ,25),
+        Measurement("workerb", "create this", "aefef",54 ,55))
+    writeMeasurementsToFile("C:\\Users\\Felix Medicus\\Dokumente\\measurements.dat", totalMeasurements)
 }

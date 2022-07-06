@@ -1,13 +1,12 @@
 resource "google_compute_address" "static_ip" {
   name = "${var.instance-name}-ipv4-address"
-  region = var.region
+  region = trim(var.zone, "-abcd")
 }
 
 resource "google_compute_instance" "cassandra" {
   name = var.instance-name
   machine_type = "e2-medium"
-  zone = "${var.region}-b"
-
+  zone = var.zone
   tags = ["allow-traffic", "allow-ssh"]
 
   depends_on=[google_compute_address.static_ip]

@@ -6,7 +6,7 @@ variable "instance-name" {
   type = string
 }
 
-variable "region"{
+variable "zone"{
   type = string 
 }
 

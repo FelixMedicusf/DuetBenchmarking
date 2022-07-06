@@ -5,10 +5,10 @@ provider "google" {
 }
 module "node" {
   source = "./modules/VM_Node"
-  for_each=var.names_and_regions
+  for_each=var.names_and_zones
   network = google_compute_network.worker_network.self_link
   instance-name = each.key
-  region = each.value
+  zone = each.value
   depends_on=[google_compute_network.worker_network]
 
 }

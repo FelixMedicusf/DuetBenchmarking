@@ -1,12 +1,11 @@
 import com.datastax.oss.driver.api.core.CqlSession
 import java.net.InetSocketAddress
-import java.sql.ResultSet
 import java.time.Instant
 import java.util.Collections
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
 
-var latencies = Collections.synchronizedList(mutableListOf<Triple<String, Long, Long>>())
+var latencies = Collections.synchronizedList(mutableListOf<Measurement>())
 
 var workloadA = Collections.synchronizedList(listOf<Pair<String, String>>())
 var workloadB = Collections.synchronizedList(listOf<Pair<String, String>>())
@@ -15,7 +14,7 @@ var indexA: AtomicInteger = AtomicInteger(0)
 var indexB: AtomicInteger = AtomicInteger(0)
 
 
-class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAddress>, val ipIndices: List<Int>,
+class WorkerThread(val workerName:String, private val sockets: List<InetSocketAddress>, val ipIndices: List<Int>,
                    val workload: List<Pair<String, String>>, private val datacenters: List<String>,
                    private val latch: CountDownLatch): Thread() {
 
@@ -28,7 +27,7 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
             builder.addContactPoint(socket)
             sessions.add(builder.build())
 
-            println("$WorkerName initialized session to $socket")
+            println("$workerName initialized session to $socket")
         }
     }
 
@@ -36,7 +35,7 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
 
         // After the Threads are started they are blocked immediately
         latch.await()
-        println("$WorkerName started Workload Querying at ${Instant.now()}")
+        println("$workerName started Workload Querying at ${Instant.now()}")
         val startTime = System.currentTimeMillis()
 
 
@@ -46,13 +45,13 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
                 sessions[nodeNumber].execute(query.second)
                 val endTimeSingleQuery = System.currentTimeMillis()
 
-                latencies.add(Triple("${query.first}/${WorkerName}", startTimeSingleQuery, endTimeSingleQuery))
+                latencies.add(Measurement(workerName, query.second, query.first, startTimeSingleQuery, endTimeSingleQuery))
 
             }
 
         /*
         if (numberOfThreadsPerVersion > 1) {
-            if (WorkerName.contains("a")) {
+            if (workerName.contains("a")) {
 
                 while (indexA.get() < workloadA.size) {
                     val index = indexA.getAndIncrement()
@@ -63,7 +62,7 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
 
                     latencies.add(
                         Triple(
-                            "${workloadA[index].first}/${WorkerName}",
+                            "${workloadA[index].first}/${workerName}",
                             startTimeSingleQuery,
                             endTimeSingleQuery
                         )
@@ -72,7 +71,7 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
                 }
             }
         }
-        if (WorkerName.contains("b")) {
+        if (workerName.contains("b")) {
             while (indexB.get() < workloadB.size) {
                 var index = indexB.getAndIncrement()
                 var nodeNumber = ipIndices[index]
@@ -82,7 +81,7 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
 
                 latencies.add(
                     Triple(
-                        "${workloadB[index].first}/${WorkerName}",
+                        "${workloadB[index].first}/${workerName}",
                         startTimeSingleQuery,
                         endTimeSingleQuery
                     )
@@ -91,11 +90,13 @@ class WorkerThread(val WorkerName:String, private val sockets: List<InetSocketAd
         }
 
          */
-        println("Finished Workload Querying of: $WorkerName in ${System.currentTimeMillis() - startTime} milliseconds.")
+        println("Finished Workload Querying of: $workerName in ${System.currentTimeMillis() - startTime} milliseconds.")
 
         for (session in sessions) {
             session.close()
         }
     }
 }
+
+
 

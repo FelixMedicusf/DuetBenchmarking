@@ -1,5 +1,4 @@
 import com.beust.jcommander.JCommander
-import com.beust.jcommander.Parameter
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -10,6 +9,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 
@@ -103,36 +103,63 @@ suspend fun main (vararg argv: String){
         }
 
         // Needs to be an even number
-        val numberOfThreadsPerWorkerNode = 2
-        client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerNode}")
+        val numberOfThreadsPerWorkerVM = 2
+        client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }
-        var totalMeasurements = mutableListOf<Triple<String, Long, Long>>()
+        var totalMeasurements = mutableListOf<Measurement>()
         var responses = mutableListOf<Deferred<String>>()
 
         // Start Benchmark ("simultaneously")
+    /*
         runBlocking {
             for(ip in args.workerIps) {
                 val url = "http://$ip:8080"
-                val response = async {client.get("$url/api/startBenchmark").bodyAsText()}
-                responses.add(response)
-            }
-            for(response in responses){
-                totalMeasurements += (Json.decodeFromString<List<Triple<String, Long, Long>>>(response.await()))
-
+                async {client.get("$url/api/startBenchmark")}
             }
         }
 
-    println("Received all measurements from all workers!")
-
-    // write Results to file
-    try {
-    writeResultsToFile("C:\\Users\\Felix Medicus\\Dokumente\\measurements.dat", totalMeasurements)
-    writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
-    }catch(e: java.lang.Exception){
-
+     */
+    for(ip in args.workerIps) {
+        val url = "http://$ip:8080"
+        client.get("$url/api/startBenchmark")
     }
 
+
+    runBlocking {
+        var receivedFrom = arrayListOf<Int>()
+        while(totalMeasurements.size<queriesWithIds.size*2) {
+            for ((index, ip) in args.workerIps.withIndex()) {
+                val url = "http://$ip:8080"
+                // Ask every 100 seconds for results
+                delay(100000)
+                val response = client.get("$url/api/getResults").bodyAsText()
+                if(response.length > 100 && index !in receivedFrom){
+                    totalMeasurements+= Json.decodeFromString<List<Measurement>>(response)
+                    receivedFrom+=index
+                }
+            }
+        }
+    }
+
+    println("Received all measurements from all workers!")
+    // write Results to file
+    if(!args.run) {
+        try {
+            writeMeasurementsToFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements.dat", totalMeasurements)
+            // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+        } catch (e: java.lang.Exception) {
+
+        }
+    }
+    if(args.run) {
+        try {
+            writeMeasurementsToFile("C:\\Users\\Felix Medicus\\Dokumente\\run_measurements.dat", totalMeasurements)
+            // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+        } catch (e: java.lang.Exception) {
+
+        }
+    }
     println("Wrote all measurements to file ~/Documents/DuetBenchmarking/measurements.dat")
 
 

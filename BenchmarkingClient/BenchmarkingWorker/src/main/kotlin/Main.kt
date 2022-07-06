@@ -140,9 +140,7 @@ fun main(args: Array<String>) {
                log.info("Request to set total number of Threads (for Version A and B) to ${call.parameters["threads"]}")
                threads = call.parameters["threads"]?.toInt() ?: 2
                numberOfThreadsPerVersion = (threads/2)
-               // operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
                log.info("Set total number of threads to $threads and threads per version to $numberOfThreadsPerVersion")
-
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText("Ok", ContentType.Application.Any)
 
@@ -167,11 +165,12 @@ fun main(args: Array<String>) {
                     val responseBody = Json.encodeToString(latencies)
                     call.response.header("Access-Control-Allow-Origin", "*")
                     call.respondText(responseBody, ContentType.Application.Json)
-
+                    benchmarkFinished = !benchmarkFinished
+                    workload = null
                 }else {
                     log.info("Requested Results before conducting Benchmark")
                     call.response.header("Access-Control-Allow-Origin", "*")
-                    call.respondText("No results available yet", ContentType.Application.Json)
+                    call.respondText("Benchmark hasn't finished yet. No results available yet", ContentType.Application.Any)
                 }
            }
            get("api/startBenchmark"){
@@ -203,8 +202,6 @@ fun main(args: Array<String>) {
                        //workerB.start()
                    }
 
-
-
                    GlobalScope.launch {
                        executor.shutdown()
                        latch.countDown()
@@ -215,11 +212,10 @@ fun main(args: Array<String>) {
                        log.info("Length of Measurements for both Threads: ${latencies.size}")
                    }
 
-
                    log.info("Benchmark started")
                    executor.awaitTermination(1, TimeUnit.HOURS)
                    call.response.header("Access-Control-Allow-Origin", "*")
-                   call.respondText(Json.encodeToString(latencies), ContentType.Application.Json)
+                   call.respondText("Benchmark started!", ContentType.Application.Json)
 
 
                }

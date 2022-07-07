@@ -146,9 +146,13 @@ suspend fun main (vararg argv: String){
                     println("Send getResults-Request to $url")
                     val response1 = client.get("$url/api/getFirstResults")
                     val response2 = client.get("$url/api/getSecondResults")
+                    val response3 = client.get("$url/api/getSecondResults")
+                    val response4 = client.get("$url/api/getSecondResults")
                     if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK) {
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response1.bodyAsText())
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response2.bodyAsText())
+                        totalMeasurements += Json.decodeFromString<List<Measurement>>(response3.bodyAsText())
+                        totalMeasurements += Json.decodeFromString<List<Measurement>>(response4.bodyAsText())
                         receivedFrom += index
                     }
                 }

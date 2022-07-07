@@ -45,7 +45,7 @@ class WorkerThread(val workerName:String, private val sockets: List<InetSocketAd
                 sessions[nodeNumber].execute(query.second)
                 val endTimeSingleQuery = System.currentTimeMillis()
 
-                latencies.add(Measurement(workerName, null, query.first, startTimeSingleQuery, endTimeSingleQuery))
+                latencies.add(Measurement(workerName, null, query.first, startTimeSingleQuery, endTimeSingleQuery, index))
 
             }
 

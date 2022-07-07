@@ -220,7 +220,7 @@ fun main(args: Array<String>) {
                        executor.execute(workerA)
                       // workerA.start()
 
-                       val workerB = WorkerThread("Thread-${i}b-Worker-$id", socketsB, getSutList(
+                       val workerB = WorkerThread("w-$id", socketsB, getSutList(
                            ipIndexAndOccurrence,
                            workload?.size ?: 0
                        ), workload!!, datacenters, latch, )

@@ -20,8 +20,6 @@ fun getSutList(ipsAndAbsoluteOccurence:Map<Int, Double>,  numberOfOperations: In
 
             i++
         }
-
-
     }
     firstList.shuffle()
 

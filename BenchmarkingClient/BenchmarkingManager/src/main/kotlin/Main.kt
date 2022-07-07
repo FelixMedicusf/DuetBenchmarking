@@ -160,7 +160,7 @@ suspend fun main (vararg argv: String){
     // write Results to file
     if(!args.run) {
         try {
-            writeMeasurementsToFile("\\src\\main\\resources\\workload_300000\\load_operations_measurements.dat", totalMeasurements)
+            writeMeasurementsToFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_300_000.dat", totalMeasurements)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 
@@ -168,7 +168,7 @@ suspend fun main (vararg argv: String){
     }
     if(args.run) {
         try {
-            writeMeasurementsToFile("C:\\Users\\Felix Medicus\\Dokumente\\run_measurements.dat", totalMeasurements)
+            writeMeasurementsToFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_10000.dat", totalMeasurements)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 

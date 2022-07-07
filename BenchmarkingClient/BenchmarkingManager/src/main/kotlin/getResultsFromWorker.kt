@@ -18,7 +18,7 @@ val url = "http://35.205.205.137:8080"
 
 
     val results: String= client.get("http://34.76.191.126:8080/api/getFirstResults").bodyAsText()
-
+    println(results)
     val list = Json.decodeFromString<List<Measurement>>(results)
 
     println(list.size)

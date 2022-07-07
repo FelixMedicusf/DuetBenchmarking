@@ -210,7 +210,7 @@ fun main(args: Array<String>) {
                    status = "running"
                    executor = Executors.newFixedThreadPool(threads)
                    for (i in 1 .. numberOfThreadsPerVersion){
-                        val workerA = WorkerThread("Thread-${i}a-Worker-$id", socketsA, getSutList(
+                        val workerA = WorkerThread("w-$id", socketsA, getSutList(
                             ipIndexAndOccurrence,
                             ((workload?.size)) ?: 0
                         ),

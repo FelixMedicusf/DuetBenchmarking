@@ -66,7 +66,7 @@ fun main(args: Array<String>) {
     var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
 
     for(index in ipAddresses.indices){
-        ipIndexAndOccurrence.put(index, queryIntensity[index])
+        ipIndexAndOccurrence[index] = queryIntensity[index]
     }
 
     try {
@@ -114,7 +114,7 @@ fun main(args: Array<String>) {
                queryIntensity = ipsAndFrequencies.map{it.second}.toTypedArray()
 
                for(index in ipsAndFrequencies.indices){
-                   ipIndexAndOccurrence.put(index, queryIntensity[index])
+                   ipIndexAndOccurrence[index] = queryIntensity[index]
                }
                log.info("Node Ips and Frequencies set")
                call.response.header("Access-Control-Allow-Origin", "*")

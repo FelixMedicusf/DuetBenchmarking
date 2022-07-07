@@ -23,7 +23,7 @@ gcloud compute ssh --zone $zone $currentInstanceName -- 'sudo apt update && sudo
 gcloud compute ssh --zone $zone $currentInstanceName -- 'git clone https://github.com/FelixMedicusf/DuetBenchmarking'
 echo "Attempt to start Server in $currentInstanceName"
 
-# Following command doesn't work when conducted in script but works when logging in via ssh into vm? 
-gcloud compute ssh --zone $zone $currentInstanceName -- "cd ~/DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && screen -mdS \"BenchmarkingWorker\" java -jar BenchmarkingWorker-final-worker.jar"
+# Following command doesn't work hen conducted in script but works when logging in via ssh into vm? 
+gcloud compute ssh --zone $zone $currentInstanceName -- "cd ~/DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && screen -mdS \"BenchmarkingWorker\" java -jar BenchmarkingWorker-final-worker.jar &"
 
 done

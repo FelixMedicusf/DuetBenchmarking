@@ -1,6 +1,5 @@
 import java.net.InetSocketAddress
 import io.ktor.application.call
-import io.ktor.http.ContentType
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -17,13 +16,18 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import WorkerThread
+import com.datastax.oss.driver.api.core.type.codec.ExtraTypeCodecs.json
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.util.Identity.encode
 import kotlinx.serialization.encodeToString
 import io.ktor.client.engine.cio.*
+import io.ktor.http.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import java.util.Collections
 import kotlin.math.ceil
+
+
 
 fun loadWorkload(workloadAsJson: String): List<Pair<String, String>>{
     val workloadAsList = Json.decodeFromString<List<Pair<String,String>>>(workloadAsJson)
@@ -55,13 +59,14 @@ var ipsAndFrequencies = mutableListOf<Pair<String,Double>>()
 var benchmarkFinished = false
 
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main(args: Array<String>) {
 
     // Take as program args
     // Default values, can also be set by Benchmarking Manager
     val ipAddresses : Array<String> = arrayOf("34.77.218.161","35.189.111.242","34.159.113.65")
     var queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
-    val datacenters = listOf<String>("europe-west1", "europe-west2", "europe-west3")
+    var datacenters = listOf<String>("europe-west1", "europe-west1", "europe-west1")
 
     var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
 
@@ -84,6 +89,7 @@ fun main(args: Array<String>) {
 
 
     embeddedServer(Netty, port = 8080){
+
        routing {
            get("api/getStatus"){
                log.info("Status requested")
@@ -95,7 +101,13 @@ fun main(args: Array<String>) {
 
            }
 
-
+           post("api/setRegions"){
+               log.info("Request to change regions of cassandra nodes")
+               val content = call.receiveText()
+               datacenters = Json.decodeFromString<List<String>>(content)
+               call.response.header("Access-Control-Allow-Origin", "*")
+               call.respondText("Regions set", ContentType.Text.Plain)
+           }
            post("api/setNodesAndFrequencies"){
                log.info("Request to change Nodes and Frequencies")
                val content = call.receiveText()
@@ -159,19 +171,33 @@ fun main(args: Array<String>) {
                call.respondText("OK", ContentType.Application.Any)
            }
 
-           get("api/getResults"){
+           get("api/getFirstResults"){
                 if (benchmarkFinished){
-                    log.info("Requested Benchmarking results by $managerIp")
-                    val responseBody = Json.encodeToString(latencies)
+                    log.info("Requested First half of Benchmarking results by $managerIp")
+                    val responseBody = Json.encodeToString((latencies.chunked(latencies.size/2))[0])
                     call.response.header("Access-Control-Allow-Origin", "*")
                     call.respondText(responseBody, ContentType.Application.Json)
-                    benchmarkFinished = !benchmarkFinished
                     workload = null
+
                 }else {
                     log.info("Requested Results before conducting Benchmark")
                     call.response.header("Access-Control-Allow-Origin", "*")
-                    call.respondText("Benchmark hasn't finished yet. No results available yet", ContentType.Application.Any)
+                    call.respondText(text="Benchmark hasn't finished yet. No results available yet",status=HttpStatusCode.NotFound, contentType=ContentType.Application.Any)
                 }
+           }
+
+           get("api/getSecondResults"){
+               if (benchmarkFinished){
+                   log.info("Requested second half Benchmarking results by $managerIp")
+                   val responseBody = Json.encodeToString((latencies.chunked(latencies.size/2))[1])
+                   call.response.header("Access-Control-Allow-Origin", "*")
+                   call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
+                   workload = null
+               }else {
+                   log.info("Requested Results before conducting Benchmark")
+                   call.response.header("Access-Control-Allow-Origin", "*")
+                   call.respondText(text="Benchmark hasn't finished yet. No results available yet",status=HttpStatusCode.NotFound, contentType=ContentType.Application.Any)
+               }
            }
            get("api/startBenchmark"){
                latencies.clear()
@@ -213,10 +239,8 @@ fun main(args: Array<String>) {
                    }
 
                    log.info("Benchmark started")
-                   executor.awaitTermination(1, TimeUnit.HOURS)
                    call.response.header("Access-Control-Allow-Origin", "*")
-                   call.respondText("Benchmark started!", ContentType.Application.Json)
-
+                   call.respondText(text = "Benchmark started!", status = HttpStatusCode.OK, contentType = ContentType.Application.Json)
 
                }
            }
@@ -225,7 +249,7 @@ fun main(args: Array<String>) {
                status = "waiting"
                log.info("Cleared Workload")
                call.response.header("Access-Control-Allow-Origin", "*")
-               call.respondText("OK", ContentType.Application.Any)
+               call.respondText(text="Workload cleared", status = HttpStatusCode.OK, contentType =  ContentType.Application.Any)
            }
        }
     }.start(wait=true)

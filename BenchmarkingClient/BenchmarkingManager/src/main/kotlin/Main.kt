@@ -4,6 +4,7 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.Deferred
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -11,8 +12,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.ExperimentalSerializationApi
 
 
+@OptIn(ExperimentalSerializationApi::class)
 suspend fun main (vararg argv: String){
 
     val workloadAPath = "src\\main\\resources\\workloadA"
@@ -64,7 +67,7 @@ suspend fun main (vararg argv: String){
     var queriesWithIds = assignIdsToQueries(cassandraQueriesList)
 
     // Replace numberOfWorker with args.size (number of ipAddresses equals number of nodes)
-    var queriesPerWorkerWithIds = divideQueryList(3, queriesWithIds)
+    var queriesPerWorkerWithIds = divideQueryList(args.workerIps.size, queriesWithIds)
 
     // Carry out following operations for all workers
     val client = HttpClient(CIO){
@@ -102,6 +105,11 @@ suspend fun main (vararg argv: String){
             setBody(content)
         }
 
+        client.post("$url/api/setRegions"){
+            val content = Json.encodeToString(args.regions)
+            setBody(content)
+        }
+
         // Needs to be an even number
         val numberOfThreadsPerWorkerVM = 2
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
@@ -129,14 +137,22 @@ suspend fun main (vararg argv: String){
     runBlocking {
         var receivedFrom = arrayListOf<Int>()
         while(totalMeasurements.size<queriesWithIds.size*2) {
+            // Wait for 3 minutes and then ask again for measurements from all workers. When all workers sent their
+            // latency measurements leave the while loop
+            delay(180000)
             for ((index, ip) in args.workerIps.withIndex()) {
-                val url = "http://$ip:8080"
-                // Ask every 100 seconds for results
-                delay(100000)
-                val response = client.get("$url/api/getResults").bodyAsText()
-                if(response.length > 100 && index !in receivedFrom){
-                    totalMeasurements+= Json.decodeFromString<List<Measurement>>(response)
-                    receivedFrom+=index
+                if(index !in receivedFrom) {
+                    val url = "http://$ip:8080"
+                    // Wait for 3 minutes
+                    delay(180000)
+                    println("Send getResults-Request to $url")
+                    val response1 = client.get("$url/api/getFirstResults")
+                    val response2 = client.get("$url/api/getSecondResults")
+                    if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK) {
+                        totalMeasurements += Json.decodeFromString<List<Measurement>>(response1.bodyAsText())
+                        totalMeasurements += Json.decodeFromString<List<Measurement>>(response2.bodyAsText())
+                        receivedFrom += index
+                    }
                 }
             }
         }
@@ -146,7 +162,7 @@ suspend fun main (vararg argv: String){
     // write Results to file
     if(!args.run) {
         try {
-            writeMeasurementsToFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements.dat", totalMeasurements)
+            writeMeasurementsToFile("\\src\\main\\resources\\workload_300000\\load_operations_measurements.dat", totalMeasurements)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 
@@ -160,7 +176,8 @@ suspend fun main (vararg argv: String){
 
         }
     }
-    println("Wrote all measurements to file ~/Documents/DuetBenchmarking/measurements.dat")
+    if(!args.run) println("Wrote all measurements to file ~/Documents/DuetBenchmarking/load_measurements.dat")
+    if(args.run) println("Wrote all measurements to file ~/Documents/DuetBenchmarking/run_measurements.dat")
 
 
 

@@ -201,6 +201,7 @@ fun main(args: Array<String>) {
            }
            get("api/startBenchmark"){
                latencies.clear()
+               benchmarkFinished = false
                val latch = CountDownLatch(1)
 
                if (workload == null)log.info("Attempt to start Benchmark without prior set Workload. Abort benchmark start!")

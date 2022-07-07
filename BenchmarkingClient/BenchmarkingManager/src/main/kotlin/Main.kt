@@ -143,8 +143,6 @@ suspend fun main (vararg argv: String){
             for ((index, ip) in args.workerIps.withIndex()) {
                 if(index !in receivedFrom) {
                     val url = "http://$ip:8080"
-                    // Wait for 3 minutes
-                    delay(180000)
                     println("Send getResults-Request to $url")
                     val response1 = client.get("$url/api/getFirstResults")
                     val response2 = client.get("$url/api/getSecondResults")

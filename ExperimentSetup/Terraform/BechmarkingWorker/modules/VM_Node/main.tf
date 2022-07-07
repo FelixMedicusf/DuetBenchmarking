@@ -35,7 +35,9 @@ resource "google_compute_instance" "worker" {
     yes | sudo apt install default-jre   
     # Create symbolic link (python -> python2.7)
     sudo ln -s /usr/bin/python2.7 /usr/bin/python 
-    SCRIPT
 
+    sudo apt update && sudo apt install git
+    git clone https://github.com/FelixMedicusf/DuetBenchmarking && cd DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && sudo java -jar BenchmarkingWorker-final-worker.jar
+    SCRIPT
   }
 }

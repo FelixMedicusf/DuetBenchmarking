@@ -60,7 +60,7 @@ var benchmarkFinished = false
 
 
 @OptIn(ExperimentalSerializationApi::class)
-fun main(args: Array<String>) {
+fun main() {
 
     // Take as program args
     // Default values, can also be set by Benchmarking Manager

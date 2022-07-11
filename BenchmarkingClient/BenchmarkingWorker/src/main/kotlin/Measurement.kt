@@ -1,2 +1,4 @@
 @kotlinx.serialization.Serializable
-data class Measurement(val workerInstance: String, val query:String?, val id:String, val sentTime:Long, val receiveTime:Long, val node :Int)
+data class Measurement(val w: String, val q:String?, val id:String, val s:Long, val r: Long, val n :String){
+
+}

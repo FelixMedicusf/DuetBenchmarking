@@ -30,6 +30,7 @@ dependencies {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     destinationDirectory.set(file("/jar/"))
+    processResources.exclude('*')
     manifest {
         attributes "Main-Class": "MainKt"
     }

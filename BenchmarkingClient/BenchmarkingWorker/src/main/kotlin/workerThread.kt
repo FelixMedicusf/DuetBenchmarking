@@ -14,9 +14,10 @@ var indexA: AtomicInteger = AtomicInteger(0)
 var indexB: AtomicInteger = AtomicInteger(0)
 
 
-class WorkerThread(val workerName:String, private val sockets: List<InetSocketAddress>, val ipIndices: List<Int>,
-                   val workload: List<Pair<String, String>>, private val datacenters: List<String>,
-                   private val latch: CountDownLatch): Thread() {
+class WorkerThread(
+    private val workerName:String, private val sockets: List<InetSocketAddress>, val ipIndices: List<Int>,
+    val workload: List<Pair<String, String>>, private val datacenters: List<String>,
+    private val latch: CountDownLatch): Thread() {
 
     var sessions = mutableListOf<CqlSession>()
 
@@ -45,7 +46,7 @@ class WorkerThread(val workerName:String, private val sockets: List<InetSocketAd
                 sessions[nodeNumber].execute(query.second)
                 val endTimeSingleQuery = System.currentTimeMillis()
 
-                latencies.add(Measurement(workerName, null, query.first, startTimeSingleQuery, endTimeSingleQuery, index))
+                latencies.add(Measurement(workerName, null, query.first, startTimeSingleQuery, endTimeSingleQuery, nodeNumber.toString()))
 
             }
 

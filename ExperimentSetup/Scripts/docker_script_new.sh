@@ -147,7 +147,7 @@ done
 gcloud compute ssh $firstInstanceName --zone $firstZone -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9045 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
 
 # Load data (keyspace and table) into Cluster B (cassandra-container-1b)
-gcloud compute ssh $firstInstanceName --zone $firstZone -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1b -e CQLSH_PORT=9050 -e CQLVERSION=3.4.0 nuvo/docker-cqlsh"
+gcloud compute ssh $firstInstanceName --zone $firstZone -- "sudo docker run --network cassandra-network-b --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1b -e CQLSH_PORT=9050 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
 
 printf "Nodes of Cluster A:\n"
 gcloud compute ssh $firstInstanceName --zone $firstZone -- 'sudo docker exec -it cassandra-container-1a nodetool status'

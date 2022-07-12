@@ -3,6 +3,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import java.util.*
+import kotlin.math.ceil
 
 
 interface Operable2 {
@@ -25,11 +26,7 @@ interface Operable2 {
 }
 
 suspend fun main (){
-    var client = HttpClient(CIO)
-    var ips = listOf<String>("35.233.17.61", "34.79.124.119", "34.76.191.126")
 
-    for((x, ip) in ips.withIndex()) {
-        val url = "http://$ip:8080/api/getStatus"
-        println("Worker $x: ${client.get(url).bodyAsText()}")
-    }
+    var latencies = listOf<Int>(1,2,3,4,5,6,7,78,8,9,0,0,3,5,6)
+    println(latencies.chunked(ceil((latencies.size).toDouble()/4).toInt())[2])
 }

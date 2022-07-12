@@ -1,6 +1,3 @@
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.io.File
 
 fun writeTransformedOperationsToFile (fileName: String, operationsList: List<String>, transformLine:(String, String) -> String ){
@@ -45,20 +42,13 @@ fun returnQueryListFromFile(fileName: String) : List<String> {
     return lines;
 }
 
-fun writeMeasurementsToFile(fileName: String, measurements: List<Measurement>, queriesWithIds: List<Pair<String, String>>, regions: List<String>): Unit {
+fun writeMeasurementsToCsvFile(fileName: String, measurements: List<Measurement>, regions: List<String>): Unit {
     var file = File(fileName)
     file.printWriter().use { out ->
+        out.println("workerId, queryType, queryId, sent, received, target-region")
         for (measurement in measurements) {
-            for(query in queriesWithIds){
-                if(query.first==measurement.id){
-                    var typeOfQuery = query.second.split(" ")[0]
-                    var region = regions[(measurement.n).toInt()]
-                    measurement.q = typeOfQuery
-                    measurement.n = region
-                    out.println(measurement)
-                    break
-                }
-            }
+                measurement.n = regions[(measurement.n).toInt()]
+                out.println(measurement)
         }
     }
 }

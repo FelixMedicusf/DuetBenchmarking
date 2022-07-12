@@ -173,6 +173,7 @@ fun main() {
 
            get("api/getFirstResults"){
                 if (benchmarkFinished){
+                    log.info("Received Request for results")
                     val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/4).toInt()))[0])
                     call.response.header("Access-Control-Allow-Origin", "*")
                     call.respondText(responseBody, ContentType.Application.Json)

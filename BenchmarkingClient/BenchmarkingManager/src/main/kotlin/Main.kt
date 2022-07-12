@@ -9,7 +9,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -21,6 +20,8 @@ suspend fun main (vararg argv: String){
     val workloadAPath = "src\\main\\resources\\workloadA"
     val workloadCPath = "src\\main\\resources\\workloadC"
     val workloadEPath = "src\\main\\resources\\workloadE"
+
+    println("Maximum heap size -> ${Runtime.getRuntime().maxMemory()*0.000001}")
 
 
     val args = Args()
@@ -62,12 +63,18 @@ suspend fun main (vararg argv: String){
             ca::transformRunOperations)
     }
 
+    genericQueriesList = listOf()
+
     var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps)
 
     var queriesWithIds = assignIdsToQueries(cassandraQueriesList)
 
+    cassandraQueriesList.toMutableList().clear()
+
     // Replace numberOfWorker with args.size (number of ipAddresses equals number of nodes)
     var queriesPerWorkerWithIds = divideQueryList(args.workerIps.size, queriesWithIds)
+
+    println("Current size of heap -> ${Runtime.getRuntime().totalMemory()*0.000001}")
 
     // Carry out following operations for all workers
     val client = HttpClient(CIO){
@@ -127,7 +134,7 @@ suspend fun main (vararg argv: String){
 
     runBlocking {
         var receivedFrom = arrayListOf<Int>()
-        while(totalMeasurements.size<queriesWithIds.size*2) {
+        while(totalMeasurements.size<queriesWithIds.size*2 && receivedFrom.size < args.workerIps.size) {
             // Wait for 3 minutes and then ask again for measurements from all workers. When all workers sent their
             // latency measurements leave the while loop
             delay(180000)
@@ -158,7 +165,7 @@ suspend fun main (vararg argv: String){
     // write Results to file
     if(!args.run) {
         try {
-            writeMeasurementsToFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_10_000.dat", totalMeasurements, queriesWithIds, args.regions)
+            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_850_000.dat", totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 
@@ -166,7 +173,7 @@ suspend fun main (vararg argv: String){
     }
     if(args.run) {
         try {
-            writeMeasurementsToFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_10000.dat", totalMeasurements, queriesWithIds, args.regions)
+            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_10000.dat", totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 

@@ -46,7 +46,7 @@ class WorkerThread(
                 sessions[nodeNumber].execute(query.second)
                 val endTimeSingleQuery = System.currentTimeMillis()
 
-                latencies.add(Measurement(workerName, null, query.first, startTimeSingleQuery, endTimeSingleQuery, nodeNumber.toString()))
+                latencies.add(Measurement(workerName, query.second.split(" ")[0], query.first, startTimeSingleQuery, endTimeSingleQuery, nodeNumber.toString()))
 
             }
 

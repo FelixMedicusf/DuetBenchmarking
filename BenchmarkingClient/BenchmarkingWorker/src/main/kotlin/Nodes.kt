@@ -1,4 +1,6 @@
-fun getSutList(ipsAndAbsoluteOccurence:Map<Int, Double>,  numberOfOperations: Int): List<Int>{
+import kotlin.math.ceil
+
+fun getSutList(ipsAndAbsoluteOccurence:Map<Int, Double>, numberOfOperations: Int): List<Int>{
 
     var ipAddressIndices = mutableListOf<Int>()
 
@@ -40,6 +42,8 @@ fun main(){
     val ipIndexAndOccurence = mapOf<Int, Double>(0 to 4.5, 1 to 4.5, 2 to 1.0)
     println(getSutList(ipIndexAndOccurence, 100_000))
 
+
+    println(ceil((6666).toDouble()/4).toInt())
     /*
     numberOfThreadsPerVersion = 2
     var a = listOf<Pair<String, String>>(Pair("half", "fefe"), Pair("hal2", "fefe") ,Pair("hal3", "fe4e"), Pair("ha34", "fe45"), Pair("ha34", "fe45"))

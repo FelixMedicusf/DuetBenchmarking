@@ -118,16 +118,7 @@ suspend fun main (vararg argv: String){
         var totalMeasurements = mutableListOf<Measurement>()
         var responses = mutableListOf<Deferred<String>>()
 
-        // Start Benchmark ("simultaneously")
-    /*
-        runBlocking {
-            for(ip in args.workerIps) {
-                val url = "http://$ip:8080"
-                async {client.get("$url/api/startBenchmark")}
-            }
-        }
-
-     */
+    // Start benchmark execution of all worker nodes
     for(ip in args.workerIps) {
         val url = "http://$ip:8080"
         client.get("$url/api/startBenchmark")
@@ -146,14 +137,17 @@ suspend fun main (vararg argv: String){
                     println("Send getResults-Request to $url")
                     val response1 = client.get("$url/api/getFirstResults")
                     val response2 = client.get("$url/api/getSecondResults")
-                    val response3 = client.get("$url/api/getSecondResults")
-                    val response4 = client.get("$url/api/getSecondResults")
-                    if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK) {
+                    val response3 = client.get("$url/api/getThirdResults")
+                    val response4 = client.get("$url/api/getForthResults")
+                    if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK &&
+                        response3.status == HttpStatusCode.OK && response4.status == HttpStatusCode.OK) {
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response1.bodyAsText())
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response2.bodyAsText())
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response3.bodyAsText())
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response4.bodyAsText())
                         receivedFrom += index
+                        println("Received results from worker $index")
+
                     }
                 }
             }

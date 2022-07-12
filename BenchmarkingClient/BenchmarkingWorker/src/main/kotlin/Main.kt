@@ -173,11 +173,11 @@ fun main() {
 
            get("api/getFirstResults"){
                 if (benchmarkFinished){
-                    log.info("Requested First half of Benchmarking results by $managerIp")
                     val responseBody = Json.encodeToString((latencies.chunked(latencies.size/4))[0])
                     call.response.header("Access-Control-Allow-Origin", "*")
                     call.respondText(responseBody, ContentType.Application.Json)
                     workload = null
+                    log.info("First part of results sent to $managerIp")
 
                 }else {
                     log.info("Requested Results before conducting Benchmark")
@@ -188,11 +188,11 @@ fun main() {
 
            get("api/getSecondResults"){
                if (benchmarkFinished){
-                   log.info("Requested second half Benchmarking results by $managerIp")
                    val responseBody = Json.encodeToString((latencies.chunked(latencies.size/4))[1])
                    call.response.header("Access-Control-Allow-Origin", "*")
                    call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
                    workload = null
+                   log.info("Second part of results sent to $managerIp")
                }else {
                    log.info("Requested Results before conducting Benchmark")
                    call.response.header("Access-Control-Allow-Origin", "*")
@@ -201,11 +201,11 @@ fun main() {
            }
            get("api/getThirdResults"){
                if (benchmarkFinished){
-                   log.info("Requested second half Benchmarking results by $managerIp")
                    val responseBody = Json.encodeToString((latencies.chunked(latencies.size/4))[2])
                    call.response.header("Access-Control-Allow-Origin", "*")
                    call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
                    workload = null
+                   log.info("Third part of results sent to $managerIp")
                }else {
                    log.info("Requested Results before conducting Benchmark")
                    call.response.header("Access-Control-Allow-Origin", "*")
@@ -214,11 +214,11 @@ fun main() {
            }
            get("api/getForthResults"){
                if (benchmarkFinished){
-                   log.info("Requested second half Benchmarking results by $managerIp")
                    val responseBody = Json.encodeToString((latencies.chunked(latencies.size/4))[3])
                    call.response.header("Access-Control-Allow-Origin", "*")
                    call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
                    workload = null
+                   log.info("Forth part of results sent to $managerIp")
                }else {
                    log.info("Requested Results before conducting Benchmark")
                    call.response.header("Access-Control-Allow-Origin", "*")
@@ -231,6 +231,7 @@ fun main() {
                val latch = CountDownLatch(1)
 
                if (workload == null)log.info("Attempt to start Benchmark without prior set Workload. Abort benchmark start!")
+
                else {
                    log.info("Start benchmark run...")
                    status = "running"

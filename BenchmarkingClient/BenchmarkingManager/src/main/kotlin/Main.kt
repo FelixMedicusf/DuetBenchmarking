@@ -12,6 +12,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
+import java.lang.Math.ceil
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -73,7 +74,7 @@ suspend fun main (vararg argv: String){
 
     // Replace numberOfWorker with args.size (number of ipAddresses equals number of nodes)
     var queriesPerWorkerWithIds = divideQueryList(args.workerIps.size, queriesWithIds)
-
+    queriesWithIds = listOf()
     println("Current size of heap -> ${Runtime.getRuntime().totalMemory()*0.000001}")
 
     // Carry out following operations for all workers
@@ -101,10 +102,21 @@ suspend fun main (vararg argv: String){
         var workerId = client.get("$url/api/getId").body<String>()
 
         // Send every #{node}th transformed query to the worker
-        client.post("$url/api/setWorkload") {
-            val content = Json.encodeToString(queriesPerWorkerWithIds[index])
+        client.post("$url/api/setFirstWorkload") {
+            var chunk = kotlin.math.ceil((queriesPerWorkerWithIds[index].size).toDouble()/2).toInt()
+            var content = Json.encodeToString(queriesPerWorkerWithIds[index].chunked(chunk)[0])
             setBody(content)
+            content = ""
         }
+
+        client.post("$url/api/setSecondWorkload") {
+            var chunk = kotlin.math.ceil((queriesPerWorkerWithIds[index].size).toDouble()/2).toInt()
+            var content = Json.encodeToString(queriesPerWorkerWithIds[index].chunked(chunk)[1])
+            setBody(content)
+            content = ""
+        }
+
+
 
 
         client.post("$url/api/setNodesAndFrequencies") {
@@ -122,6 +134,7 @@ suspend fun main (vararg argv: String){
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }
+        queriesPerWorkerWithIds = listOf()
         var totalMeasurements = mutableListOf<Measurement>()
         var responses = mutableListOf<Deferred<String>>()
 
@@ -165,7 +178,7 @@ suspend fun main (vararg argv: String){
     // write Results to file
     if(!args.run) {
         try {
-            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_850_000.dat", totalMeasurements, args.regions)
+            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_850_000.csv", totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 

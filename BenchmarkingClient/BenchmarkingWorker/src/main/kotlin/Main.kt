@@ -158,17 +158,31 @@ fun main() {
 
            }
 
-           post("api/setWorkload"){
-               log.info("Request to set the Workload")
+           post("api/setFirstWorkload"){
+               log.info("Request to set first part of the Workload")
                managerIp = call.request.origin.remoteHost
-               val content = call.receiveText()
+               var content = call.receiveText()
                workload = loadWorkload(content)
-               workloadA = loadWorkload(content)
-               workloadB = loadWorkload(content)
-               log.info("Received Workload with ${workload?.size} queries from $managerIp")
+               content = ""
+               //workloadA = loadWorkload(content)
+               //workloadB = loadWorkload(content)
+               log.info("Received first Part of Workload with ${workload?.size} queries from $managerIp")
                // operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
                call.response.header("Access-Control-Allow-Origin", "*")
-               call.respondText("OK", ContentType.Application.Any)
+               call.respondText(text ="OK", status = HttpStatusCode.OK, contentType =  ContentType.Application.Any)
+           }
+           post("api/setSecondWorkload"){
+               log.info("Request to set second part of the Workload")
+               managerIp = call.request.origin.remoteHost
+               var content = call.receiveText()
+               workload = workload?.plus(loadWorkload(content))
+               content = ""
+               //workloadA = loadWorkload(content)
+               //workloadB = loadWorkload(content)
+               log.info("Received second Part of Workload with ${workload?.size} queries from $managerIp and appended it to the first part")
+               // operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
+               call.response.header("Access-Control-Allow-Origin", "*")
+               call.respondText(text ="OK", status = HttpStatusCode.OK, contentType =  ContentType.Application.Any)
            }
 
            get("api/getFirstResults"){

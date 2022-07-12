@@ -173,7 +173,7 @@ fun main() {
 
            get("api/getFirstResults"){
                 if (benchmarkFinished){
-                    val responseBody = Json.encodeToString((latencies.chunked(latencies.size/4))[0])
+                    val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/4).toInt()))[0])
                     call.response.header("Access-Control-Allow-Origin", "*")
                     call.respondText(responseBody, ContentType.Application.Json)
                     workload = null
@@ -188,7 +188,7 @@ fun main() {
 
            get("api/getSecondResults"){
                if (benchmarkFinished){
-                   val responseBody = Json.encodeToString((latencies.chunked(latencies.size/4))[1])
+                   val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/4).toInt()))[1])
                    call.response.header("Access-Control-Allow-Origin", "*")
                    call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
                    workload = null
@@ -201,7 +201,7 @@ fun main() {
            }
            get("api/getThirdResults"){
                if (benchmarkFinished){
-                   val responseBody = Json.encodeToString((latencies.chunked(latencies.size/4))[2])
+                   val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/4).toInt()))[2])
                    call.response.header("Access-Control-Allow-Origin", "*")
                    call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
                    workload = null
@@ -214,7 +214,7 @@ fun main() {
            }
            get("api/getForthResults"){
                if (benchmarkFinished){
-                   val responseBody = Json.encodeToString((latencies.chunked(latencies.size/4))[3])
+                   val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/4).toInt()))[3])
                    call.response.header("Access-Control-Allow-Origin", "*")
                    call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
                    workload = null

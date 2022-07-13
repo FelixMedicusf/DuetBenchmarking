@@ -48,7 +48,7 @@ class CassandraQueries: operable{
         }
 
         return "${cassandraOperation} (${columnList.joinToString { x -> x}}) VALUES " +
-                "(${columnValues.joinToString {  x -> "\'$x\'" }})"
+                "(${columnValues.joinToString {  x -> "\'$x\'" }}) IF NOT EXISTS"
     }
 
 

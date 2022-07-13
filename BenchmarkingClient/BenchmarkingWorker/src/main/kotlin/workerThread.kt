@@ -43,7 +43,12 @@ class WorkerThread(
             for ((index, query) in workload.withIndex()) {
                 var nodeNumber = ipIndices[index]
                 val startTimeSingleQuery = System.currentTimeMillis()
-                sessions[nodeNumber].execute(query.second)
+
+                var result = sessions[nodeNumber].execute(query.second)
+                while(!result.wasApplied()){
+
+                }
+
                 val endTimeSingleQuery = System.currentTimeMillis()
 
                 latencies.add(Measurement(workerName, query.second.split(" ")[0], query.first, startTimeSingleQuery, endTimeSingleQuery, nodeNumber.toString()))

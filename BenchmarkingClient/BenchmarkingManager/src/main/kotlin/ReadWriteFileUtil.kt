@@ -45,7 +45,7 @@ fun returnQueryListFromFile(fileName: String) : List<String> {
 fun writeMeasurementsToCsvFile(fileName: String, measurements: List<Measurement>, regions: List<String>): Unit {
     var file = File(fileName)
     file.printWriter().use { out ->
-        out.println("workerId, queryType, queryId, sent, received, target-region")
+        out.println("workerId,queryType,queryId,sent,received,target-region")
         for (measurement in measurements) {
                 measurement.n = regions[(measurement.n).toInt()]
                 out.println(measurement)

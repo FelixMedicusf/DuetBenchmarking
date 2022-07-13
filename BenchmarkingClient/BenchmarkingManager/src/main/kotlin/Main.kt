@@ -78,6 +78,8 @@ suspend fun main (vararg argv: String){
     println("Current size of heap -> ${Runtime.getRuntime().totalMemory()*0.000001}")
 
     // Carry out following operations for all workers
+
+
     val client = HttpClient(CIO){
         // disable request timeout cause benchmark takes time
         engine {
@@ -135,7 +137,7 @@ suspend fun main (vararg argv: String){
 
     }
         queriesPerWorkerWithIds = listOf()
-        var totalMeasurements = mutableListOf<Measurement>()
+
         var responses = mutableListOf<Deferred<String>>()
 
     // Start benchmark execution of all worker nodes
@@ -145,9 +147,11 @@ suspend fun main (vararg argv: String){
     }
 
 
+
+    var totalMeasurements = mutableListOf<Measurement>()
     runBlocking {
         var receivedFrom = arrayListOf<Int>()
-        while(totalMeasurements.size<queriesWithIds.size*2 && receivedFrom.size < args.workerIps.size) {
+        while(receivedFrom.size < args.workerIps.size) {
             // Wait for 3 minutes and then ask again for measurements from all workers. When all workers sent their
             // latency measurements leave the while loop
             delay(180000)
@@ -178,7 +182,7 @@ suspend fun main (vararg argv: String){
     // write Results to file
     if(!args.run) {
         try {
-            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_850_000.csv", totalMeasurements, args.regions)
+            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_10_000_prepared.csv", totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 
@@ -186,7 +190,7 @@ suspend fun main (vararg argv: String){
     }
     if(args.run) {
         try {
-            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_10000.dat", totalMeasurements, args.regions)
+            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_500_000.dat", totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 

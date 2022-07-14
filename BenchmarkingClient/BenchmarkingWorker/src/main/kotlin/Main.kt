@@ -163,9 +163,10 @@ fun main() {
                managerIp = call.request.origin.remoteHost
                var content = call.receiveText()
                workload = loadWorkload(content)
-               content = ""
                //workloadA = loadWorkload(content)
-               //workloadB = loadWorkload(content)
+               // workloadB = loadWorkload(content)
+
+               content = ""
                log.info("Received first Part of Workload with ${workload?.size} queries from $managerIp")
                // operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
                call.response.header("Access-Control-Allow-Origin", "*")
@@ -176,10 +177,12 @@ fun main() {
                managerIp = call.request.origin.remoteHost
                var content = call.receiveText()
                workload = workload?.plus(loadWorkload(content))
+               //workloadA = workload?.plus(loadWorkload(content))
+               //workloadB = workload?.plus(loadWorkload(content))
                content = ""
-               //workloadA = loadWorkload(content)
-               //workloadB = loadWorkload(content)
-               log.info("Received second Part of Workload with ${workload?.size} queries from $managerIp and appended it to the first part")
+
+               log.info("Received second Part of Workload queries from $managerIp and appended it to the first part. Total size of workload:  ${workload?.size}")
+
                // operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText(text ="OK", status = HttpStatusCode.OK, contentType =  ContentType.Application.Any)
@@ -254,7 +257,7 @@ fun main() {
                    for (i in 1 .. numberOfThreadsPerVersion){
                         val workerA = WorkerThread("w${id}a", socketsA, getSutList(
                             ipIndexAndOccurrence,
-                            ((workload?.size)) ?: 0
+                            (divideListForThreads(workload!!)?.get(i-1) ?: emptyList()).size
                         ),
                             divideListForThreads(workload!!)?.get(i-1) ?: emptyList() ,datacenters, latch, )
 
@@ -264,8 +267,8 @@ fun main() {
 
                        val workerB = WorkerThread("w${id}b", socketsB, getSutList(
                            ipIndexAndOccurrence,
-                           workload?.size ?: 0
-                       ), workload!!, datacenters, latch, )
+                           (divideListForThreads(workload!!)?.get(i-1) ?: emptyList()).size
+                       ), divideListForThreads(workload!!)?.get(i-1) ?: emptyList(), datacenters, latch, )
 
                        executor.execute(workerB)
                        //workerB.start()

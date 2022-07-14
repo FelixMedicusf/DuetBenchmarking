@@ -182,7 +182,7 @@ suspend fun main (vararg argv: String){
     // write Results to file
     if(!args.run) {
         try {
-            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_10_000_prepared.csv", totalMeasurements, args.regions)
+            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_1_000.csv", totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 

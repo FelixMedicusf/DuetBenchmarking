@@ -3,7 +3,7 @@ import java.net.InetSocketAddress
 
 
 
-val ipAddresses : Array<String> = arrayOf("35.187.55.198","34.78.7.149","34.140.205.234")
+val ipAddresses : Array<String> = arrayOf("35.205.236.216","35.187.45.42","34.79.28.158")
 
 fun main() {
     val socketsA = mutableListOf<InetSocketAddress>()

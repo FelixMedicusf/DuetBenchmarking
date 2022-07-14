@@ -19,7 +19,7 @@ class Args {
     var regions: List<String> = mutableListOf()
 
     @Parameter(names = ["-wl", "-workload"], description = "Path to the workload", echoInput = true)
-    var workload = "src\\main\\resources\\workloadA_500000\\load_operations_500000.dat"
+    var workload = "src\\main\\resources\\workloadA\\load_operations.dat"
 
     @Parameter(names = ["-run"], description = "Set -run if it is a run Benchmark", echoInput = true)
     var run:Boolean = false

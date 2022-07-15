@@ -15,16 +15,9 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import WorkerThread
-import com.datastax.oss.driver.api.core.type.codec.ExtraTypeCodecs.json
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.util.Identity.encode
 import kotlinx.serialization.encodeToString
-import io.ktor.client.engine.cio.*
 import io.ktor.http.*
 import kotlinx.serialization.ExperimentalSerializationApi
-import java.util.Collections
 import kotlin.math.ceil
 
 
@@ -49,7 +42,7 @@ var workload: List<Pair<String, String>>? = null
 // var workloadB = Collections.synchronizedList(listOf<Pair<String, String>>())
 // var operationsPerWorker = 0;
 
-var numberOfThreadsPerVersion: Int = 1
+var numberOfThreadsPerVersion: Int = 3
 var threads = numberOfThreadsPerVersion * 2
 var executor: ExecutorService = Executors.newFixedThreadPool(threads)
 var socketsA = mutableListOf<InetSocketAddress>()
@@ -150,11 +143,11 @@ fun main() {
 
            get("api/setThreads"){
                log.info("Request to set total number of Threads (for Version A and B) to ${call.parameters["threads"]}")
-               threads = call.parameters["threads"]?.toInt() ?: 2
-               numberOfThreadsPerVersion = (threads/2)
+               numberOfThreadsPerVersion = call.parameters["threads"]?.toInt() ?: 1
+               threads = numberOfThreadsPerVersion*2
                log.info("Set total number of threads to $threads and threads per version to $numberOfThreadsPerVersion")
-               call.response.header("Access-Control-Allow-Origin", "*")
-               call.respondText("Ok", ContentType.Application.Any)
+               call.response.header(name="Access-Control-Allow-Origin", value="*")
+               call.respondText(text = "OK", status=HttpStatusCode.OK, contentType=ContentType.Application.Any)
 
            }
 
@@ -163,12 +156,9 @@ fun main() {
                managerIp = call.request.origin.remoteHost
                var content = call.receiveText()
                workload = loadWorkload(content)
-               //workloadA = loadWorkload(content)
-               // workloadB = loadWorkload(content)
-
                content = ""
+
                log.info("Received first Part of Workload with ${workload?.size} queries from $managerIp")
-               // operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText(text ="OK", status = HttpStatusCode.OK, contentType =  ContentType.Application.Any)
            }
@@ -177,13 +167,9 @@ fun main() {
                managerIp = call.request.origin.remoteHost
                var content = call.receiveText()
                workload = workload?.plus(loadWorkload(content))
-               //workloadA = workload?.plus(loadWorkload(content))
-               //workloadB = workload?.plus(loadWorkload(content))
                content = ""
 
                log.info("Received second Part of Workload queries from $managerIp and appended it to the first part. Total size of workload:  ${workload?.size}")
-
-               // operationsPerWorker = (workload?.size ?: 0) / numberOfThreadsPerVersion
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText(text ="OK", status = HttpStatusCode.OK, contentType =  ContentType.Application.Any)
            }
@@ -255,23 +241,23 @@ fun main() {
                    status = "running"
                    executor = Executors.newFixedThreadPool(threads)
                    for (i in 1 .. numberOfThreadsPerVersion){
-                        val workerA = WorkerThread("w${id}a", socketsA, getSutList(
+                       
+                        val workloadForThread = divideListForThreads(workload!!)?.get(i-1) ?: emptyList()
+                        val sutList = getSutList(
                             ipIndexAndOccurrence,
-                            (divideListForThreads(workload!!)?.get(i-1) ?: emptyList()).size
-                        ),
-                            divideListForThreads(workload!!)?.get(i-1) ?: emptyList() ,datacenters, latch, )
+                            workloadForThread.size
+                            )
+
+                        val workerA = WorkerThread("w${id}-vA", socketsA, sutList,
+                            workloadForThread ,datacenters, latch, )
+
+                       val workerB = WorkerThread("w${id}-vB", socketsB, sutList,
+                           workloadForThread, datacenters, latch, )
 
                        // Create Threadpool if more than 1 Thread per Version is necessary.
                        executor.execute(workerA)
-                      // workerA.start()
-
-                       val workerB = WorkerThread("w${id}b", socketsB, getSutList(
-                           ipIndexAndOccurrence,
-                           (divideListForThreads(workload!!)?.get(i-1) ?: emptyList()).size
-                       ), divideListForThreads(workload!!)?.get(i-1) ?: emptyList(), datacenters, latch, )
-
                        executor.execute(workerB)
-                       //workerB.start()
+
                    }
 
                    GlobalScope.launch {
@@ -304,18 +290,10 @@ fun main() {
 }
 
 fun divideListForThreads(workload :List<Pair<String, String>>):List<List<Pair<String, String>>>?{
-    var chunkedList = emptyList<List<Pair<String, String>>>()
-    if (numberOfThreadsPerVersion == 1){
-        chunkedList = workload.chunked(workload.size)
-    }
-    if (numberOfThreadsPerVersion == 2){
-        var middleIndex = ceil(workload.size.toDouble()/2).toInt()
-        chunkedList = workload.chunked(middleIndex)
-    }
 
-    return chunkedList
+    val chunkSize = ceil(workload.size.toDouble()/numberOfThreadsPerVersion).toInt()
 
-
+    return workload.chunked(chunkSize)
 }
 
 

@@ -7,8 +7,9 @@ import java.time.Instant
 import java.util.Collections
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.ceil
 
-var latencies = Collections.synchronizedList(mutableListOf<Measurement>())
+var latencies: MutableList<Measurement> = Collections.synchronizedList(mutableListOf<Measurement>())
 
 //var workloadA = Collections.synchronizedList(listOf<Pair<String, String>>())
 //var workloadB = Collections.synchronizedList(listOf<Pair<String, String>>())
@@ -27,7 +28,7 @@ class WorkerThread(
     init {
         for ((index, socket) in sockets.withIndex()) {
 
-            var builder = CqlSession.builder().withLocalDatacenter(datacenters[index])
+            val builder = CqlSession.builder().withLocalDatacenter(datacenters[index])
 
             builder.addContactPoint(socket)
             val session : SyncCqlSession = builder.build()
@@ -38,7 +39,6 @@ class WorkerThread(
     }
 
     override fun run() {
-
         // After the Threads are started they are blocked immediately
         latch.await()
         println("$workerName started Workload Querying at ${Instant.now()}")
@@ -46,20 +46,16 @@ class WorkerThread(
 
 
             for ((index, query) in workload.withIndex()) {
-                var nodeNumber = ipIndices[index]
+                val nodeNumber = ipIndices[index]
                 val startTimeSingleQuery = System.currentTimeMillis()
 
                 var result = sessions[nodeNumber].execute(query.second)
-/*
-                while(!result.wasApplied()){
 
-                }
-
- */
                 val endTimeSingleQuery = System.currentTimeMillis()
 
                 latencies.add(Measurement(workerName, query.second.split(" ")[0], query.first, startTimeSingleQuery, endTimeSingleQuery, nodeNumber.toString()))
 
+                if (index == ceil((workload.size).toDouble()/2.0).toInt())println("Half of the queries processed by $workerName")
             }
 
 /*

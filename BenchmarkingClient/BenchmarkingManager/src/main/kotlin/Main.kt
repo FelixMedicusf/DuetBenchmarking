@@ -132,13 +132,13 @@ suspend fun main (vararg argv: String){
         }
 
         // Needs to be an even number
-        val numberOfThreadsPerWorkerVM = 2
+        val numberOfThreadsPerWorkerVM = 1
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }
-        queriesPerWorkerWithIds = listOf()
 
-        var responses = mutableListOf<Deferred<String>>()
+    queriesPerWorkerWithIds = listOf()
+
 
     // Start benchmark execution of all worker nodes
     for(ip in args.workerIps) {
@@ -146,11 +146,9 @@ suspend fun main (vararg argv: String){
         client.get("$url/api/startBenchmark")
     }
 
-
-
-    var totalMeasurements = mutableListOf<Measurement>()
+    val totalMeasurements = mutableListOf<Measurement>()
     runBlocking {
-        var receivedFrom = arrayListOf<Int>()
+        val receivedFrom = arrayListOf<Int>()
         while(receivedFrom.size < args.workerIps.size) {
             // Wait for 3 minutes and then ask again for measurements from all workers. When all workers sent their
             // latency measurements leave the while loop

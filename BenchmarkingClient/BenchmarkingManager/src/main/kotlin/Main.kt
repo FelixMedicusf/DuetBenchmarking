@@ -132,7 +132,7 @@ suspend fun main (vararg argv: String){
         }
 
         // Needs to be an even number
-        val numberOfThreadsPerWorkerVM = 2
+        val numberOfThreadsPerWorkerVM = 3
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }
@@ -152,7 +152,7 @@ suspend fun main (vararg argv: String){
         while(receivedFrom.size < args.workerIps.size) {
             // Wait for 5 minutes and then ask again for measurements from all workers. When all workers sent their
             // latency measurements leave the while loop
-            delay(300000)
+            delay(100000)
             for ((index, ip) in args.workerIps.withIndex()) {
                 if(index !in receivedFrom) {
                     val url = "http://$ip:8080"
@@ -180,7 +180,7 @@ suspend fun main (vararg argv: String){
     // write Results to file
     if(!args.run) {
         try {
-            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_1_000.csv", totalMeasurements, args.regions)
+            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_300_000_3t.csv", totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 

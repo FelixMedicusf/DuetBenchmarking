@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-var workerIps = listOf<String>("34.76.149.30", "104.199.104.38","34.78.247.178")
+var workerIps = listOf<String>("34.76.6.233","34.79.239.191","34.77.205.204")
 var regions = listOf<String>("europe-west1", "europe-west1", "europe-west1")
 suspend fun main() {
 
@@ -19,9 +19,7 @@ suspend fun main() {
     runBlocking {
         val receivedFrom = arrayListOf<Int>()
         while(receivedFrom.size < workerIps.size) {
-            // Wait for 3 minutes and then ask again for measurements from all workers. When all workers sent their
-            // latency measurements leave the while loop
-            delay(180000)
+
             for ((index, ip) in workerIps.withIndex()) {
                 if(index !in receivedFrom) {
                     val url = "http://$ip:8080"

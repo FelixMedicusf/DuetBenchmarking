@@ -39,3 +39,7 @@
 
 # Workload files
 *.dat
+
+# Util figures
+*.png
+*.jpg

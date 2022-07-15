@@ -142,7 +142,7 @@ fun main() {
            }
 
            get("api/setThreads"){
-               log.info("Request to set total number of Threads (for Version A and B) to ${call.parameters["threads"]}")
+               log.info("Request to set number of Threads per Version to ${call.parameters["threads"]}")
                numberOfThreadsPerVersion = call.parameters["threads"]?.toInt() ?: 1
                threads = numberOfThreadsPerVersion*2
                log.info("Set total number of threads to $threads and threads per version to $numberOfThreadsPerVersion")

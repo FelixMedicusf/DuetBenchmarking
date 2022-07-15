@@ -132,7 +132,7 @@ suspend fun main (vararg argv: String){
         }
 
         // Needs to be an even number
-        val numberOfThreadsPerWorkerVM = 1
+        val numberOfThreadsPerWorkerVM = 2
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }
@@ -150,9 +150,9 @@ suspend fun main (vararg argv: String){
     runBlocking {
         val receivedFrom = arrayListOf<Int>()
         while(receivedFrom.size < args.workerIps.size) {
-            // Wait for 3 minutes and then ask again for measurements from all workers. When all workers sent their
+            // Wait for 5 minutes and then ask again for measurements from all workers. When all workers sent their
             // latency measurements leave the while loop
-            delay(180000)
+            delay(300000)
             for ((index, ip) in args.workerIps.withIndex()) {
                 if(index !in receivedFrom) {
                     val url = "http://$ip:8080"

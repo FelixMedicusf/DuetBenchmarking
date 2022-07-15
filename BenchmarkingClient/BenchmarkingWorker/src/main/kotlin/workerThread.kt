@@ -1,5 +1,6 @@
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
+import com.datastax.oss.driver.api.core.cql.ResultSet
 import com.datastax.oss.driver.api.core.cql.SyncCqlSession
 import kotlinx.coroutines.future.await
 import java.net.InetSocketAddress
@@ -24,8 +25,18 @@ class WorkerThread(
     private val latch: CountDownLatch): Thread() {
 
     var sessions = mutableListOf<SyncCqlSession>()
+    private var session: SyncCqlSession
+
+
+    var results = mutableListOf<ResultSet>()
 
     init {
+        val builder = CqlSession.builder().withLocalDatacenter(datacenters[0])
+        builder.addContactPoint(sockets[0])
+        session  = builder.build()
+        println("$workerName connected to the Cluster!")
+
+        /*
         for ((index, socket) in sockets.withIndex()) {
 
             val builder = CqlSession.builder().withLocalDatacenter(datacenters[index])
@@ -36,6 +47,8 @@ class WorkerThread(
 
             println("$workerName initialized session to $socket")
         }
+
+         */
     }
 
     override fun run() {
@@ -46,14 +59,16 @@ class WorkerThread(
 
 
             for ((index, query) in workload.withIndex()) {
-                val nodeNumber = ipIndices[index]
+                // val nodeNumber = ipIndices[index]
                 val startTimeSingleQuery = System.currentTimeMillis()
 
-                var result = sessions[nodeNumber].execute(query.second)
+                //var result = sessions[nodeNumber].execute(query.second)
+                var result = session.execute(query.second)
+                results.add(result)
 
                 val endTimeSingleQuery = System.currentTimeMillis()
 
-                latencies.add(Measurement(workerName, query.second.split(" ")[0], query.first, startTimeSingleQuery, endTimeSingleQuery, nodeNumber.toString()))
+                latencies.add(Measurement(workerName, query.second.split(" ")[0], query.first, startTimeSingleQuery, endTimeSingleQuery, "unknown"))
 
                 if (index == ceil((workload.size).toDouble()/2.0).toInt())println("Half of the queries processed by $workerName")
             }
@@ -91,6 +106,8 @@ class WorkerThread(
 */
 
         println("Finished Workload Querying of: $workerName in ${System.currentTimeMillis() - startTime} milliseconds.")
+
+        println(results.size)
 
         for (session in sessions) {
             session.close()

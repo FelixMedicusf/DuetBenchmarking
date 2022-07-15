@@ -43,7 +43,7 @@ suspend fun main (vararg argv: String){
 
     println("Run --> ${args.run}")
 
-    if(args.run)args.workload="src\\main\\resources\\workloadA_10000\\run_operations_10000.dat"
+    if(args.run)args.workload="src\\main\\resources\\workloadA_10000\\load_operations_10000.dat"
 
     var pathToTransformedOps = ""
     if(!args.run)pathToTransformedOps = "src\\main\\resources\\workloadA_10000\\cassandra_load_operations_10000.dat"
@@ -132,7 +132,7 @@ suspend fun main (vararg argv: String){
         }
 
         // Needs to be an even number
-        val numberOfThreadsPerWorkerVM = 3
+        val numberOfThreadsPerWorkerVM = 20
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }
@@ -152,7 +152,7 @@ suspend fun main (vararg argv: String){
         while(receivedFrom.size < args.workerIps.size) {
             // Wait for 5 minutes and then ask again for measurements from all workers. When all workers sent their
             // latency measurements leave the while loop
-            delay(100000)
+            delay(1500000)
             for ((index, ip) in args.workerIps.withIndex()) {
                 if(index !in receivedFrom) {
                     val url = "http://$ip:8080"
@@ -180,7 +180,7 @@ suspend fun main (vararg argv: String){
     // write Results to file
     if(!args.run) {
         try {
-            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_300_000_3t.csv", totalMeasurements, args.regions)
+            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\run_measurements_200_000_3t.csv", totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 
@@ -188,7 +188,7 @@ suspend fun main (vararg argv: String){
     }
     if(args.run) {
         try {
-            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_500_000.dat", totalMeasurements, args.regions)
+            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\run_measurements_200_000_3t.csv", totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 

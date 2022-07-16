@@ -43,11 +43,11 @@ suspend fun main (vararg argv: String){
 
     println("Run --> ${args.run}")
 
-    if(args.run)args.workload="src\\main\\resources\\workloadA_10000\\load_operations_10000.dat"
+    if(args.run)args.workload="src\\main\\resources\\workloadA_10000\\run_operations_10000.dat"
 
     var pathToTransformedOps = ""
-    if(!args.run)pathToTransformedOps = "src\\main\\resources\\workloadA_10000\\cassandra_load_operations_10000.dat"
-    if(args.run)pathToTransformedOps = "src\\main\\resources\\workloadA_10000\\cassandra_run_operations_10000.dat"
+    if(!args.run)pathToTransformedOps = "src\\main\\resources\\transformedLoads.dat"
+    if(args.run)pathToTransformedOps = "src\\main\\resources\\transformedRuns.dat"
 
     val ca = CassandraQueries()
 
@@ -132,7 +132,7 @@ suspend fun main (vararg argv: String){
         }
 
         // Needs to be an even number
-        val numberOfThreadsPerWorkerVM = 20
+        val numberOfThreadsPerWorkerVM = 3
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }

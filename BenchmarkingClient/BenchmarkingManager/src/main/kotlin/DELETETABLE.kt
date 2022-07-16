@@ -18,7 +18,7 @@ fun main() {
     }
 
     deleteAll(socketsA)
-    //deleteAll(socketsB)
+    deleteAll(socketsB)
 
 }
 

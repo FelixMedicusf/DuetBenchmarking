@@ -113,9 +113,12 @@ class WorkerThread(
 
         println(results.size)
 
+        /*
         for (session in sessions) {
             session.close()
         }
+        */
+         session.close()
     }
 }
 

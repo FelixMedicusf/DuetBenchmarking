@@ -47,7 +47,7 @@ fun writeMeasurementsToCsvFile(fileName: String, measurements: List<Measurement>
     file.printWriter().use { out ->
         out.println("workerId,queryType,queryId,sent,received,target-region")
         for (measurement in measurements) {
-                measurement.n = regions[(measurement.n).toInt()]
+                //measurement.n = regions[(measurement.n).toInt()]
                 out.println(measurement)
         }
     }

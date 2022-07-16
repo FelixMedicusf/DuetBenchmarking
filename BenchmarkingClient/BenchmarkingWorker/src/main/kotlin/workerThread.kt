@@ -1,6 +1,7 @@
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import com.datastax.oss.driver.api.core.cql.ResultSet
+import com.datastax.oss.driver.api.core.cql.Row
 import com.datastax.oss.driver.api.core.cql.SyncCqlSession
 import kotlinx.coroutines.future.await
 import java.net.InetSocketAddress
@@ -28,7 +29,7 @@ class WorkerThread(
     private var session: SyncCqlSession
 
 
-    var results = mutableListOf<ResultSet>()
+    var results = mutableListOf<Row>()
 
     init {
         val builder = CqlSession.builder().withLocalDatacenter(datacenters[0])
@@ -63,8 +64,11 @@ class WorkerThread(
                 val startTimeSingleQuery = System.currentTimeMillis()
 
                 //var result = sessions[nodeNumber].execute(query.second)
-                var result = session.execute(query.second)
-                results.add(result)
+                var result = session.execute(query.second).one()
+
+                if (result != null) {
+                    results.add(result)
+                }
 
                 val endTimeSingleQuery = System.currentTimeMillis()
 

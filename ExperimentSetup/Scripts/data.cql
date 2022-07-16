@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS ycsb.usertable (
     field6 varchar,
     field7 varchar,
     field8 varchar,
-    field9 varchar) AND caching = {
+    field9 varchar) WITH caching = {
     'keys' : 'NONE',
     'rows_per_partition' : 'NONE'
 };

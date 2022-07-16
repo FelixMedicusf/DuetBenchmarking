@@ -1,5 +1,6 @@
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
+import com.datastax.oss.driver.api.core.DriverTimeoutException
 import com.datastax.oss.driver.api.core.cql.ResultSet
 import com.datastax.oss.driver.api.core.cql.Row
 import com.datastax.oss.driver.api.core.cql.SyncCqlSession
@@ -64,13 +65,20 @@ class WorkerThread(
                 val startTimeSingleQuery = System.currentTimeMillis()
 
                 //var result = sessions[nodeNumber].execute(query.second)
-                var result = session.execute(query.second).one()
+                var endTimeSingleQuery = 0L
 
-                if (result != null) {
-                    results.add(result)
+                try {
+                    var result = session.execute(query.second).one()
+                    if (result != null) {
+                        results.add(result)
+                    }
+                    endTimeSingleQuery = System.currentTimeMillis()
+
+                }catch(e: DriverTimeoutException){
+                    endTimeSingleQuery = 999999999999999999
                 }
 
-                val endTimeSingleQuery = System.currentTimeMillis()
+
 
                 latencies.add(Measurement(workerName, query.second.split(" ")[0], query.first, startTimeSingleQuery, endTimeSingleQuery, "unknown"))
 

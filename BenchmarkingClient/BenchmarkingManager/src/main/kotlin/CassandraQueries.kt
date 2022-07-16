@@ -41,7 +41,7 @@ class CassandraQueries: operable{
 
             } else {
 
-                value = values[n].substring(2, 102)
+                value = values[n].substring(2, 52)
                 columnValues.add(value)
             }
             n++

@@ -46,7 +46,7 @@ suspend fun main() {
     println("Received all measurements from all workers!")
     // write Results to file
     try {
-        writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_10000_3t.csv",
+        writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_850000_10t.csv",
             totalMeasurements, regions)
         // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
     } catch (e: java.lang.Exception) {

@@ -9,8 +9,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-var workerIps = listOf("35.195.47.67","34.77.81.7","34.77.169.141")
-var regions = listOf("europe-west1", "europe-west1", "europe-west1")
+var workerIps = listOf("35.240.34.204","35.195.47.67","34.77.99.135")
+var regions = listOf("europe-west1", "europe-west2", "europe-west3")
 suspend fun main() {
 
     val client = HttpClient(CIO){

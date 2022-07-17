@@ -132,7 +132,7 @@ suspend fun main (vararg argv: String){
         }
 
         // Needs to be an even number
-        val numberOfThreadsPerWorkerVM = 1
+        val numberOfThreadsPerWorkerVM = 3
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }

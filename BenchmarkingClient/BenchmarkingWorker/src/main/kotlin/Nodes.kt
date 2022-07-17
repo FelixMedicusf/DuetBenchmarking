@@ -38,6 +38,12 @@ fun getSutList(ipsAndAbsoluteOccurence:Map<Int, Double>, numberOfOperations: Int
 
 fun main(){
     val ipIndexAndOccurence = mapOf<Int, Double>(0 to 4.5, 1 to 4.5, 2 to 1.0)
+    var start = System.nanoTime()
+    println(start)
+    for (i in 1..10 ){
+        println(i)
+    }
+    println(System.nanoTime()-start)
     // println(getSutList(ipIndexAndOccurence, 1_000))
 
 

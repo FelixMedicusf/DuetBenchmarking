@@ -62,23 +62,19 @@ class WorkerThread(
 
             for ((index, query) in workload.withIndex()) {
                 // val nodeNumber = ipIndices[index]
-                val startTimeSingleQuery = System.currentTimeMillis()
+
+                val startTimeSingleQuery = System.nanoTime()
 
                 //var result = sessions[nodeNumber].execute(query.second)
                 var endTimeSingleQuery = 0L
 
-                try {
+                endTimeSingleQuery = try {
                     var result = session.execute(query.second).one()
-                    if (result != null) {
-                        results.add(result)
-                    }
-                    endTimeSingleQuery = System.currentTimeMillis()
+                    System.nanoTime()
 
                 }catch(e: DriverTimeoutException){
-                    endTimeSingleQuery = 999999999999999999
+                    999999999999999999
                 }
-
-
 
                 latencies.add(Measurement(workerName, query.second.split(" ")[0], query.first, startTimeSingleQuery, endTimeSingleQuery, "unknown"))
 
@@ -119,7 +115,7 @@ class WorkerThread(
 
         println("Finished Workload Querying of: $workerName in ${System.currentTimeMillis() - startTime} milliseconds.")
 
-        println(results.size)
+        // println(results.size)
 
         /*
         for (session in sessions) {

@@ -24,8 +24,8 @@ variable "names_and_zones"{
   # europe-west1: Belgien, europe-west2: London, europe-west-3: FFM 
   default = {
     cassandra-node-1 = "europe-west1-b"
-    cassandra-node-2 = "europe-west1-c"  
-    cassandra-node-3 = "europe-west1-d" 
+    cassandra-node-2 = "europe-west2-b"  
+    cassandra-node-3 = "europe-west3-b" 
   }
 }
 

@@ -43,7 +43,7 @@ suspend fun main (vararg argv: String){
 
     println("Run --> ${args.run}")
 
-    if(args.run)args.workload="src\\main\\resources\\workloadA_1m\\run_operations_1m.dat"
+    if(args.run)args.workload="src\\main\\resources\\workloadC_1m\\run_operations.dat"
 
     var pathToTransformedOps = ""
     if(!args.run)pathToTransformedOps = "src\\main\\resources\\transformedLoads.dat"

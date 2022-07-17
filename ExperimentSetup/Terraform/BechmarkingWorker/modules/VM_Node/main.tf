@@ -37,7 +37,7 @@ resource "google_compute_instance" "worker" {
     sudo ln -s /usr/bin/python2.7 /usr/bin/python 
 
     sudo apt update && sudo apt install git
-    git clone https://github.com/FelixMedicusf/DuetBenchmarking && cd /DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && sudo java -jar BenchmarkingWorker-final-worker.jar
+    git clone https://github.com/FelixMedicusf/DuetBenchmarking && cd /DuetBenchmarking/BenchmarkingClient/BenchmarkingWorker/jar && sudo java -jar BenchmarkingWorker-final-worker.jar > /worker.log
     SCRIPT
   }
 }

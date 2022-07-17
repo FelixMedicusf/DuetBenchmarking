@@ -1,11 +1,11 @@
 import java.util.UUID
 import java.util.Vector
 
-fun divideQueryList(numberOfWorkers: Int, queryList: List<Pair<String, String>>): List<List<Pair<String, String>>>{
+fun divideQueryList(numberOfWorkers: Int, queryList: List<Pair<Int, String>>): List<List<Pair<Int, String>>>{
 
     // val numberOfQueries = queryList.size
 
-    var queryListsForWorkersWithIds = mutableListOf<MutableList<Pair<String, String>>>()
+    var queryListsForWorkersWithIds = mutableListOf<MutableList<Pair<Int, String>>>()
 
     var x = 0
 
@@ -23,24 +23,14 @@ fun divideQueryList(numberOfWorkers: Int, queryList: List<Pair<String, String>>)
     return queryListsForWorkersWithIds
 }
 
-fun assignIdsToQueries(queryList: List<String>):List<Pair<String, String>> {
+fun assignIdsToQueries(queryList: List<String>):List<Pair<Int, String>> {
 
-    var idList = mutableListOf<String>()
-
-    for (i in queryList.indices) {
-        // Might produce same Ids.
-        var id = UUID.randomUUID().toString();
-        idList.add(id)
-    }
-
-    var queriesWithIds = mutableListOf<Pair<String, String>>()
+    var queriesWithIds = mutableListOf<Pair<Int, String>>()
 
     for(i in queryList.indices){
-        queriesWithIds.add(Pair(idList[i], queryList[i]))
+        queriesWithIds.add(Pair(i, queryList[i]))
     }
-
     return queriesWithIds
-
 }
 
 

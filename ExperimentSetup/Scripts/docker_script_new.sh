@@ -143,6 +143,9 @@ gcloud compute ssh $currentInstanceName --zone $zone -- 'sudo docker ps'
 
 done
 
+
+sleep 15
+
 # Load data (keyspace and table) into Cluster A (cassandra-container-1a) 
 gcloud compute ssh $firstInstanceName --zone $firstZone -- "sudo docker run --network cassandra-network-a --rm -v ~/data.cql:/scripts/data.cql -e CQLSH_HOST=cassandra-container-1a -e CQLSH_PORT=9045 -e CQLVERSION=3.4.5 nuvo/docker-cqlsh"
 

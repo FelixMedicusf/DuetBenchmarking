@@ -37,13 +37,13 @@ suspend fun main (vararg argv: String){
 
     println("Frequencies --> ${args.frequencies}")
 
-    println("Workload --> ${args.workload}")
 
     println("Regions --> ${args.regions}")
 
     println("Run --> ${args.run}")
 
     if(args.run)args.workload="src\\main\\resources\\workloadC_1m\\run_operations.dat"
+    println("Workload --> ${args.workload}")
 
     var pathToTransformedOps = ""
     if(!args.run)pathToTransformedOps = "src\\main\\resources\\transformedLoads.dat"
@@ -131,8 +131,8 @@ suspend fun main (vararg argv: String){
             setBody(content)
         }
 
-        // Needs to be an even number
-        val numberOfThreadsPerWorkerVM = 3
+
+        val numberOfThreadsPerWorkerVM = 4
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }

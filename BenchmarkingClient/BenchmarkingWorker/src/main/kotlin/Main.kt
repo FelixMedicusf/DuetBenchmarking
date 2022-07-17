@@ -23,8 +23,8 @@ import kotlin.math.ceil
 
 
 
-fun loadWorkload(workloadAsJson: String): List<Pair<String, String>>{
-    val workloadAsList = Json.decodeFromString<List<Pair<String,String>>>(workloadAsJson)
+fun loadWorkload(workloadAsJson: String): List<Pair<Int, String>>{
+    val workloadAsList = Json.decodeFromString<List<Pair<Int,String>>>(workloadAsJson)
     return workloadAsList
 }
 
@@ -38,7 +38,7 @@ fun loadIpsAndFrequencies(IpsAndFrequenciesAsJson: String): List<Pair<String, Do
 var id: Int = 1
 var status:String = "waiting"
 
-var workload: List<Pair<String, String>>? = null
+var workload: List<Pair<Int, String>>? = null
 // var workloadA = Collections.synchronizedList(listOf<Pair<String, String>>())
 // var workloadB = Collections.synchronizedList(listOf<Pair<String, String>>())
 // var operationsPerWorker = 0;
@@ -292,7 +292,7 @@ fun main() {
 
 }
 
-fun divideListForThreads(workload :List<Pair<String, String>>):List<List<Pair<String, String>>>?{
+fun divideListForThreads(workload :List<Pair<Int, String>>):List<List<Pair<Int, String>>>?{
 
     val chunkSize = ceil(workload.size.toDouble()/numberOfThreadsPerVersion).toInt()
 

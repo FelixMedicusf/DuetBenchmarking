@@ -10,7 +10,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 var workerIps = listOf("35.195.46.198","34.76.88.129","35.241.245.232")
-var regions = listOf("europe-west1", "europe-west2", "europe-west3")
+var regions = listOf("europe-west1", "europe-west1", "europe-west1")
 suspend fun main() {
 
     val client = HttpClient(CIO){
@@ -61,7 +61,7 @@ suspend fun main() {
     // write Results to file
         try {
             writeMeasurementsToCsvFile(
-                "C:\\Users\\Felix Medicus\\Desktop\\Thesis_MCC\\DuetBenchmarking\\Results\\Results\\load_measurements_1m.csv",
+                "C:\\Users\\Felix Medicus\\Desktop\\Thesis_MCC\\DuetBenchmarking\\Results\\Results\\run_measurements_1m.csv",
                 totalMeasurements, regions
             )
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)

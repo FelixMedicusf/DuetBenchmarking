@@ -19,7 +19,7 @@ variable "names_and_zones"{
   # europe-west1: Belgien, europe-west2: London, europe-west-3: FFM 
   default = {
     worker-1 = "europe-west1-b"
-    worker-2 = "europe-west2-b"  
-    worker-3 = "europe-west3-b" 
+    worker-2 = "europe-west1-b"  
+    worker-3 = "europe-west1-b" 
   }
 }

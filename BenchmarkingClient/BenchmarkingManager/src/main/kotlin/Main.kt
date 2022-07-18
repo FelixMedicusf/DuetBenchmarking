@@ -132,7 +132,7 @@ suspend fun main (vararg argv: String){
         }
 
 
-        val numberOfThreadsPerWorkerVM = 4
+        val numberOfThreadsPerWorkerVM = 3
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }

@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-var workerIps = listOf("34.77.81.7","34.89.26.62","34.159.159.28")
+var workerIps = listOf("35.195.46.198","34.76.88.129","35.241.245.232")
 var regions = listOf("europe-west1", "europe-west2", "europe-west3")
 suspend fun main() {
 
@@ -32,16 +32,17 @@ suspend fun main() {
                 if(index !in receivedFrom) {
                     val url = "http://$ip:8080"
                     println("Send getResults-Request to $url")
-                    var response1 = client.get("$url/api/getFirstResults")
-                    var response2 = client.get("$url/api/getSecondResults")
-                    var response3 = client.get("$url/api/getThirdResults")
-                    var response4 = client.get("$url/api/getForthResults")
+                    val response1 = client.get("$url/api/getFirstResults")
+                    val response2 = client.get("$url/api/getSecondResults")
+                    val response3 = client.get("$url/api/getThirdResults")
+                    val response4 = client.get("$url/api/getForthResults")
                     if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK &&
                         response3.status == HttpStatusCode.OK && response4.status == HttpStatusCode.OK) {
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response1.bodyAsText())
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response2.bodyAsText())
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response3.bodyAsText())
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response4.bodyAsText())
+
                         response1.discardRemaining()
                         response2.discardRemaining()
                         response3.discardRemaining()
@@ -56,17 +57,22 @@ suspend fun main() {
     }
 
     println("Received all measurements from all workers!")
+
     // write Results to file
-    try {
-        writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\load_measurements_1m.csv",
-            totalMeasurements, regions)
-        // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
-    } catch (e: java.lang.Exception) {
-        e.printStackTrace()
-    }
+        try {
+            writeMeasurementsToCsvFile(
+                "C:\\Users\\Felix Medicus\\Desktop\\Thesis_MCC\\DuetBenchmarking\\Results\\Results\\load_measurements_1m.csv",
+                totalMeasurements, regions
+            )
+            // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
 
 
-    println("Wrote all measurements to file ~/Documents/DuetBenchmarking/load_measurements.dat")
+
+
+    println("Wrote all measurements to Results Directory")
 
 
 }

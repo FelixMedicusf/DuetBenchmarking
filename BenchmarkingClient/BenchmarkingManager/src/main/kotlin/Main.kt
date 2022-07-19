@@ -42,7 +42,7 @@ suspend fun main (vararg argv: String){
 
     println("Run --> ${args.run}")
 
-    if(args.run)args.workload="src\\main\\resources\\workloadC_1m\\run_operations.dat"
+    if(args.run)args.workload="src\\main\\resources\\workloadC_1.5m\\run_operations.dat"
     println("Workload --> ${args.workload}")
 
     var pathToTransformedOps = ""
@@ -132,7 +132,7 @@ suspend fun main (vararg argv: String){
         }
 
 
-        val numberOfThreadsPerWorkerVM = 3
+        val numberOfThreadsPerWorkerVM = 5
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }

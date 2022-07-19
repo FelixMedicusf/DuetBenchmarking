@@ -19,8 +19,8 @@ sudo tar xfvz ycsb-0.17.0.tar.gz
 
 
 # Generate Operations for later injection into database 
-cd ~/ycsb-0.17.0 && ./bin/ycsb load basic -P workloads/workloada -p recordcount=$totalNumberOfOperations > ~/Documents/DuetBenchmarking/load_operations.dat
-cd ~/ycsb-0.17.0 && ./bin/ycsb run basic -P workloads/workloada -p recordcount=$totalNumberOfOperations > ~/Documents/DuetBenchmarking/run_operations.dat
+cd ~/ycsb-0.17.0 && ./bin/ycsb load basic -P workloads/workloadc -p operationcount=$totalNumberOfOperations -p recordcount=$totalNumberOfOperations > ~/Documents/DuetBenchmarking/load_operations.dat
+cd ~/ycsb-0.17.0 && ./bin/ycsb run basic -P workloads/workloadc -p operationcount=$totalNumberOfOperations -p recordcount=$totalNumberOfOperations > ~/Documents/DuetBenchmarking/run_operations.dat
 
 # Fetches the Ip-addresses and regions of the VMs on which cassandra is deployed
 instances="$(gcloud compute instances list)"

@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-var workerIps = listOf("35.195.46.198", "35.195.190.205", "35.241.245.232")
+var workerIps = listOf("35.205.197.105","34.79.54.136","34.77.3.239")
 var regions = listOf("europe-west1", "europe-west1", "europe-west1")
 suspend fun main() {
 

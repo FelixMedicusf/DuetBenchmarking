@@ -36,6 +36,7 @@ class WorkerThread(
         val builder = CqlSession.builder().withLocalDatacenter(datacenters[0])
         builder.addContactPoint(sockets[0])
         session  = builder.build()
+
         println("$workerName connected to the Cluster!")
 
         /*

@@ -23,7 +23,7 @@ var latencies: MutableList<Measurement> = Collections.synchronizedList(mutableLi
 
 class WorkerThread(
     private val workerName:String, private val sockets: List<InetSocketAddress>, val ipIndices: List<Int>,
-    val workload: List<Pair<Int, String>>, private val datacenters: List<String>,
+    val workload: List<Pair<Int, String>>, private val datacenter: String,
     private val latch: CountDownLatch): Thread() {
 
     var sessions = mutableListOf<SyncCqlSession>()
@@ -33,7 +33,7 @@ class WorkerThread(
     var results = mutableListOf<Row>()
 
     init {
-        val builder = CqlSession.builder().withLocalDatacenter(datacenters[0])
+        val builder = CqlSession.builder().withLocalDatacenter(datacenter)
         builder.addContactPoint(sockets[0])
         session  = builder.build()
 

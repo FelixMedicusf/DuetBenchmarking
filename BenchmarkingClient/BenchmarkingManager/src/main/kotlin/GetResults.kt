@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-var workerIps = listOf("34.77.204.118","34.79.54.136","34.76.153.190")
+var workerIps = listOf("192.158.29.141","35.195.53.151","35.190.223.138")
 var regions = listOf("europe-west1", "europe-west1", "europe-west1")
 suspend fun main() {
 
@@ -59,7 +59,7 @@ suspend fun main() {
     // write Results to file
         try {
             writeMeasurementsToCsvFile(
-                "C:\\Users\\Felix Medicus\\Desktop\\Thesis_MCC\\DuetBenchmarking\\Results\\Results\\run_measurements3.csv",
+                "C:\\Users\\Felix Medicus\\Desktop\\Thesis_MCC\\DuetBenchmarking\\Results\\Results\\load_measurements2.csv",
                 totalMeasurements, regions
             )
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)

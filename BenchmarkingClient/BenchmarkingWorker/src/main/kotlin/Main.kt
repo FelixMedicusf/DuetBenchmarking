@@ -51,6 +51,7 @@ var socketsB = mutableListOf<InetSocketAddress>()
 var managerIp = ""
 var ipsAndFrequencies = mutableListOf<Pair<String,Double>>()
 var benchmarkFinished = false
+var region = "europe-west1"
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -60,7 +61,7 @@ fun main() {
     // Default values, can also be set by Benchmarking Manager
     val ipAddresses : Array<String> = arrayOf("34.77.218.161","35.189.111.242","34.159.113.65")
     var queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
-    var datacenters = listOf<String>("europe-west1", "europe-west1", "europe-west1")
+
 
     var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
 
@@ -97,10 +98,10 @@ fun main() {
 
            }
 
-           post("api/setRegions"){
-               log.info("Request to change regions of cassandra nodes")
+           post("api/setRegion"){
                val content = call.receiveText()
-               datacenters = Json.decodeFromString<List<String>>(content)
+               region = Json.decodeFromString<String>(content)
+               log.info("Request to change region (datacenter) worker-$id should send requests to. ($region)")
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText("Regions set", ContentType.Text.Plain)
            }
@@ -252,10 +253,10 @@ fun main() {
                             )
 
                         val workerA = WorkerThread("w${id}-vA", socketsA, sutList,
-                            workloadForThread ,datacenters[id-1], latch, )
+                            workloadForThread, region, latch, )
 
-                       val workerB = WorkerThread("w${id}-vB", socketsB, sutList,
-                           workloadForThread, datacenters[id-1], latch, )
+                        val workerB = WorkerThread("w${id}-vB", socketsB, sutList,
+                           workloadForThread, region, latch, )
 
                        // Create Threadpool if more than 1 Thread per Version is necessary.
                        executor.execute(workerA)

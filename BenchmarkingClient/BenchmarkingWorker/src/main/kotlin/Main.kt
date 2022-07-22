@@ -252,10 +252,10 @@ fun main() {
                             workloadForThread.size
                             )
 
-                        val workerA = WorkerThread("w${id}-vA", socketsA, sutList,
+                        val workerA = WorkerThread("w${id}-vA", socketsA[id-1], sutList,
                             workloadForThread, region, latch, )
 
-                        val workerB = WorkerThread("w${id}-vB", socketsB, sutList,
+                        val workerB = WorkerThread("w${id}-vB", socketsB[id-1], sutList,
                            workloadForThread, region, latch, )
 
                        // Create Threadpool if more than 1 Thread per Version is necessary.

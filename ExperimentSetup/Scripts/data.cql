@@ -1,6 +1,6 @@
 -- Create a keyspace
-CREATE KEYSPACE IF NOT EXISTS ycsb WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': '2' };
--- CREATE KEYSPACE IF NOT EXISTS ycsb WITH REPLICATION = {'class': 'NetworkTopologyStrategy', 'europe-west1': '1', 'europe-west2': '1', 'europe-west3': '1' };
+-- CREATE KEYSPACE IF NOT EXISTS ycsb WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': '2' };
+CREATE KEYSPACE IF NOT EXISTS ycsb WITH REPLICATION = {'class': 'NetworkTopologyStrategy', 'europe-west1': '1', 'europe-west2': '1', 'europe-west3': '1' };
 
 -- Use the keyspace
 USE ycsb; 

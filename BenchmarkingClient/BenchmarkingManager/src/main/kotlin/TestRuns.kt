@@ -17,7 +17,7 @@ fun main() {
     var pathToTransformedOps = ""
 
 
-    val genericQueriesList = returnQueryListFromFile(workload)
+    val genericQueriesList = returnQueryListFromFile(workload, 1250000)
 
     if (!run){
         pathToTransformedOps = "src\\main\\resources\\transformed_load.dat"
@@ -32,7 +32,7 @@ fun main() {
 
 
 
-    var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps)
+    var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps, 1250000)
 
     var queriesWithIds = assignIdsToQueries(cassandraQueriesList)
 

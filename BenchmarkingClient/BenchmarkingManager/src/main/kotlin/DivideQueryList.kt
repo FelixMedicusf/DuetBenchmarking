@@ -37,6 +37,7 @@ fun assignIdsToQueries(queryList: List<String>):List<Pair<Int, String>> {
 
 
 fun main(){
+    /*
     var list = listOf<String>("a", "b", "c", "d", "e", "f", "g", "h")
 
     var x = assignIdsToQueries(queryList = list)
@@ -45,6 +46,9 @@ fun main(){
 
     print(y)
 
+
+     */
+    print(System.nanoTime())
 
 }
 

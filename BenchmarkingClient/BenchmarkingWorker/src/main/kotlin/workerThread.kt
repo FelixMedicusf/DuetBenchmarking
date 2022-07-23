@@ -61,10 +61,11 @@ class WorkerThread(
                     System.nanoTime()
 
                 }catch(e: DriverTimeoutException){
-                    999999999999999999
+                    e.printStackTrace()
+                    startTimeSingleQuery + 2000000000L
                 }
 
-                latencies.add(Measurement(workerName, query.second.split(" ")[0], query.first, startTimeSingleQuery, endTimeSingleQuery, "unknown"))
+                latencies.add(Measurement(workerName, query.second.split(" ")[0], query.first, startTimeSingleQuery, endTimeSingleQuery, region))
 
                 if (index == ceil((workload.size).toDouble()/2.0).toInt())println("Half of the queries processed by $workerName")
             }

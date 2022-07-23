@@ -42,7 +42,7 @@ suspend fun main (vararg argv: String){
 
     println("Run --> ${args.run}")
 
-    if(args.run)args.workload="src\\main\\resources\\workloadA_1.25m\\run_operations.dat"
+    if(args.run)args.workload="src\\main\\resources\\workloadA_1m\\run_operations.dat"
     println("Workload --> ${args.workload}")
 
     var pathToTransformedOps = ""
@@ -54,25 +54,25 @@ suspend fun main (vararg argv: String){
     var genericQueriesList: List<String>
 
     if(!args.run) {
-        genericQueriesList = returnQueryListFromFile(args.workload, 700000)
+        genericQueriesList = returnQueryListFromFile(args.workload, 1000000)
         writeTransformedOperationsToFile(pathToTransformedOps, genericQueriesList,
             ca::transformLoadOperations)
     }
     if(args.run){
-        genericQueriesList = returnQueryListFromFile(args.workload, 700000)
+        genericQueriesList = returnQueryListFromFile(args.workload, 1000000)
         writeTransformedOperationsToFile(pathToTransformedOps, genericQueriesList,
             ca::transformRunOperations)
     }
 
     genericQueriesList = listOf()
 
-    var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps, 700000)
+    var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps, 1000000)
 
     var queriesWithIds = assignIdsToQueries(cassandraQueriesList)
 
     cassandraQueriesList.toMutableList().clear()
 
-    queriesWithIds.forEach { println("${it.first} + ${it.second}") }
+    // queriesWithIds.forEach { println("${it.first} + ${it.second}") }
 
 
     // Replace numberOfWorker with args.size (number of ipAddresses equals number of nodes)
@@ -135,7 +135,7 @@ suspend fun main (vararg argv: String){
         }
 
 
-        val numberOfThreadsPerWorkerVM = 2
+        val numberOfThreadsPerWorkerVM = 3
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }

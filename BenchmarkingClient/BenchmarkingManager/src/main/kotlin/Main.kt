@@ -54,19 +54,19 @@ suspend fun main (vararg argv: String){
     var genericQueriesList: List<String>
 
     if(!args.run) {
-        genericQueriesList = returnQueryListFromFile(args.workload, 1000000)
+        genericQueriesList = returnQueryListFromFile(args.workload, 1_000_000)
         writeTransformedOperationsToFile(pathToTransformedOps, genericQueriesList,
             ca::transformLoadOperations)
     }
     if(args.run){
-        genericQueriesList = returnQueryListFromFile(args.workload, 1000000)
+        genericQueriesList = returnQueryListFromFile(args.workload, 1_000_000)
         writeTransformedOperationsToFile(pathToTransformedOps, genericQueriesList,
             ca::transformRunOperations)
     }
 
     genericQueriesList = listOf()
 
-    var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps, 1000000)
+    var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps, 1_000_000)
 
     var queriesWithIds = assignIdsToQueries(cassandraQueriesList)
 

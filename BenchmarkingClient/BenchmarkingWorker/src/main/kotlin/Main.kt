@@ -17,7 +17,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.encodeToString
 import io.ktor.http.*
-import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlin.math.ceil
 
@@ -28,9 +27,8 @@ fun loadWorkload(workloadAsJson: String): List<Pair<Int, String>>{
     return workloadAsList
 }
 
-fun loadIpsAndFrequencies(IpsAndFrequenciesAsJson: String): List<Pair<String, Double>>{
-    val IpsAndFrequenciesAsList = Json.decodeFromString<List<Pair<String, Double>>>(IpsAndFrequenciesAsJson)
-    return IpsAndFrequenciesAsList
+fun loadIpsAndFrequencies(IpsAsJson: String): List<String> {
+    return Json.decodeFromString(IpsAsJson)
 }
 
 
@@ -49,7 +47,7 @@ var executor: ExecutorService = Executors.newFixedThreadPool(threads)
 var socketsA = mutableListOf<InetSocketAddress>()
 var socketsB = mutableListOf<InetSocketAddress>()
 var managerIp = ""
-var ipsAndFrequencies = mutableListOf<Pair<String,Double>>()
+var nodeIps = mutableListOf<String>()
 var benchmarkFinished = false
 var region = "europe-west1"
 
@@ -60,14 +58,8 @@ fun main() {
     // Take as program args
     // Default values, can also be set by Benchmarking Manager
     val ipAddresses : Array<String> = arrayOf("34.77.218.161","35.189.111.242","34.159.113.65")
-    var queryIntensity: Array<Double> = arrayOf(3.3,3.3,1.0)
-
 
     var ipIndexAndOccurrence = mutableMapOf<Int, Double>()
-
-    for(index in ipAddresses.indices){
-        ipIndexAndOccurrence[index] = queryIntensity[index]
-    }
 
     try {
         for (address in ipAddresses) {
@@ -105,34 +97,28 @@ fun main() {
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText("Regions set", ContentType.Text.Plain)
            }
-           post("api/setNodesAndFrequencies"){
+
+           post("api/setNodes"){
                log.info("Request to change Nodes and Frequencies")
                val content = call.receiveText()
-               ipsAndFrequencies = loadIpsAndFrequencies(content).toMutableList()
+               nodeIps = loadIpsAndFrequencies(content).toMutableList()
                socketsA.clear()
                socketsB.clear()
 
-               for (ipAndFrequency in ipsAndFrequencies) {
-                   val socketA = InetSocketAddress(ipAndFrequency.first, 9045)
-                   val socketB = InetSocketAddress(ipAndFrequency.first, 9050)
+               for (ip in nodeIps) {
+                   val socketA = InetSocketAddress(ip, 9045)
+                   val socketB = InetSocketAddress(ip, 9050)
                    socketsA.add(socketA)
                    socketsB.add(socketB)
                }
 
-
-               queryIntensity = ipsAndFrequencies.map{it.second}.toTypedArray()
-
-               for(index in ipsAndFrequencies.indices){
-                   ipIndexAndOccurrence[index] = queryIntensity[index]
-               }
-               log.info("Node Ips and Frequencies set")
+               log.info("Node Ips set")
                call.response.header("Access-Control-Allow-Origin", "*")
-
                call.respondText("OK", ContentType.Application.Any)
            }
 
 
-           get("api/setId"){
+           post("api/setId"){
                managerIp = call.request.origin.remoteHost
                log.info("Request from $managerIp to set Worker id to ${call.parameters["id"]}")
                id = call.parameters["id"]?.toInt() ?: id
@@ -145,7 +131,7 @@ fun main() {
                call.respondText(id.toString(), ContentType.Application.Any)
            }
 
-           get("api/setThreads"){
+           post("api/setThreads"){
                log.info("Request to set number of Threads per Version to ${call.parameters["threads"]}")
                numberOfThreadsPerVersion = call.parameters["threads"]?.toInt() ?: 1
                threads = numberOfThreadsPerVersion*2
@@ -155,7 +141,7 @@ fun main() {
 
            }
 
-           post("api/setFirstWorkload"){
+           post("api/setWorkloadFirst"){
                log.info("Request to set first part of the Workload")
                managerIp = call.request.origin.remoteHost
                var content = call.receiveText()
@@ -166,7 +152,7 @@ fun main() {
                call.response.header("Access-Control-Allow-Origin", "*")
                call.respondText(text ="OK", status = HttpStatusCode.OK, contentType =  ContentType.Application.Any)
            }
-           post("api/setSecondWorkload"){
+           post("api/setWorkloadSecond"){
                log.info("Request to set second part of the Workload")
                managerIp = call.request.origin.remoteHost
                var content = call.receiveText()
@@ -178,14 +164,14 @@ fun main() {
                call.respondText(text ="OK", status = HttpStatusCode.OK, contentType =  ContentType.Application.Any)
            }
 
-           get("api/getFirstResults"){
+           get("api/getResultsFirst"){
                 if (benchmarkFinished){
-                    log.info("Received Request for results")
-                    val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/4).toInt()))[0])
+                    log.info("Received Request for results first half of results")
+                    val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/2).toInt()))[0])
                     call.response.header("Access-Control-Allow-Origin", "*")
                     call.respondText(responseBody, ContentType.Application.Json)
                     workload = null
-                    log.info("First part of results sent to $managerIp")
+                    log.info("First half of results sent to $managerIp")
 
                 }else {
                     log.info("Requested Results before conducting Benchmark")
@@ -194,39 +180,14 @@ fun main() {
                 }
            }
 
-           get("api/getSecondResults"){
+           get("api/getResultsSecond"){
                if (benchmarkFinished){
-                   val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/4).toInt()))[1])
+                   log.info("Received Request for results second half of results")
+                   val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/2).toInt()))[1])
                    call.response.header("Access-Control-Allow-Origin", "*")
                    call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
                    workload = null
-                   log.info("Second part of results sent to $managerIp")
-               }else {
-                   log.info("Requested Results before conducting Benchmark")
-                   call.response.header("Access-Control-Allow-Origin", "*")
-                   call.respondText(text="Benchmark hasn't finished yet. No results available yet",status=HttpStatusCode.NotFound, contentType=ContentType.Application.Any)
-               }
-           }
-           get("api/getThirdResults"){
-               if (benchmarkFinished){
-                   val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/4).toInt()))[2])
-                   call.response.header("Access-Control-Allow-Origin", "*")
-                   call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
-                   workload = null
-                   log.info("Third part of results sent to $managerIp")
-               }else {
-                   log.info("Requested Results before conducting Benchmark")
-                   call.response.header("Access-Control-Allow-Origin", "*")
-                   call.respondText(text="Benchmark hasn't finished yet. No results available yet",status=HttpStatusCode.NotFound, contentType=ContentType.Application.Any)
-               }
-           }
-           get("api/getForthResults"){
-               if (benchmarkFinished){
-                   val responseBody = Json.encodeToString((latencies.chunked(ceil((latencies.size).toDouble()/4).toInt()))[3])
-                   call.response.header("Access-Control-Allow-Origin", "*")
-                   call.respondText(text = responseBody, status=HttpStatusCode.OK, contentType = ContentType.Application.Json)
-                   workload = null
-                   log.info("Forth part of results sent to $managerIp")
+                   log.info("Second half of results sent to $managerIp")
                }else {
                    log.info("Requested Results before conducting Benchmark")
                    call.response.header("Access-Control-Allow-Origin", "*")
@@ -252,10 +213,10 @@ fun main() {
                             workloadForThread.size
                             )
 
-                        val workerA = WorkerThread("w${id}-vA", socketsA[id-1], sutList,
+                        val workerA = cassandraWorkerThread("w${id}-vA", socketsA[id-1], sutList,
                             workloadForThread, region, latch, )
 
-                        val workerB = WorkerThread("w${id}-vB", socketsB[id-1], sutList,
+                        val workerB = cassandraWorkerThread("w${id}-vB", socketsB[id-1], sutList,
                            workloadForThread, region, latch, )
 
                        // Create Threadpool if more than 1 Thread per Version is necessary.
@@ -280,7 +241,7 @@ fun main() {
 
                }
            }
-           get("api/clear"){
+           delete("api/clear"){
                workload = null
                status = "waiting"
                log.info("Cleared Workload")

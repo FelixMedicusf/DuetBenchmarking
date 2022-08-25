@@ -12,9 +12,6 @@ class Args {
     @Parameter(names = ["-w", "-workers"], description = "Array of Worker Ip-Addresses", echoInput = true)
     var workerIps: List<String> = mutableListOf()
 
-    @Parameter(names = ["-f", "-frequencies"], description = "Array of Frequencies in which nodes should be queried", echoInput = true)
-    var frequencies: List<Double> = mutableListOf(1.0,1.0,1.0)
-
     @Parameter(names = ["-r", "-regions"], description = "Array of regions in which nodes are deployed", echoInput = true)
     var regions: List<String> = mutableListOf()
 

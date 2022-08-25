@@ -18,9 +18,6 @@ import java.lang.Math.ceil
 @OptIn(ExperimentalSerializationApi::class)
 suspend fun main (vararg argv: String){
 
-    val workloadAPath = "src\\main\\resources\\workloadA"
-    val workloadCPath = "src\\main\\resources\\workloadC"
-    val workloadEPath = "src\\main\\resources\\workloadE"
 
     println("Maximum heap size -> ${Runtime.getRuntime().maxMemory()*0.000001}")
 
@@ -34,9 +31,6 @@ suspend fun main (vararg argv: String){
     println("workers --> ${args.workerIps}")
 
     println("nodes --> ${args.cassandraNodeIps}")
-
-    println("Frequencies --> ${args.frequencies}")
-
 
     println("Regions --> ${args.regions}")
 
@@ -90,10 +84,10 @@ suspend fun main (vararg argv: String){
         }
     }
 
-    var ipsAndFrequencies = mutableListOf<Pair<String, Double>>()
+    var ipsAndFrequencies = mutableListOf<String>()
 
     for (i in 0 until args.cassandraNodeIps.size){
-        ipsAndFrequencies.add(Pair(args.cassandraNodeIps[i], args.frequencies[i]))
+        ipsAndFrequencies.add(args.cassandraNodeIps[i])
     }
 
     for((index, ip) in args.workerIps.withIndex()) {
@@ -124,7 +118,7 @@ suspend fun main (vararg argv: String){
 
 
 
-        client.post("$url/api/setNodesAndFrequencies") {
+        client.post("$url/api/setNodes") {
             val content = Json.encodeToString(ipsAndFrequencies)
             setBody(content)
         }
@@ -153,23 +147,19 @@ suspend fun main (vararg argv: String){
     runBlocking {
         val receivedFrom = arrayListOf<Int>()
         while(receivedFrom.size < args.workerIps.size) {
-            // Wait for 5 minutes and then ask again for measurements from all workers. When all workers sent their
-            // latency measurements leave the while loop
-            delay(1500000)
+            // Wait for 20 minutes and then ask again for measurements from all workers. When all workers sent their
+            // latency measurements leaves the while loop
+            delay(1_200_000)
             for ((index, ip) in args.workerIps.withIndex()) {
                 if(index !in receivedFrom) {
                     val url = "http://$ip:8080"
                     println("Send getResults-Request to $url")
                     val response1 = client.get("$url/api/getFirstResults")
                     val response2 = client.get("$url/api/getSecondResults")
-                    val response3 = client.get("$url/api/getThirdResults")
-                    val response4 = client.get("$url/api/getForthResults")
-                    if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK &&
-                        response3.status == HttpStatusCode.OK && response4.status == HttpStatusCode.OK) {
+
+                    if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK) {
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response1.bodyAsText())
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response2.bodyAsText())
-                        totalMeasurements += Json.decodeFromString<List<Measurement>>(response3.bodyAsText())
-                        totalMeasurements += Json.decodeFromString<List<Measurement>>(response4.bodyAsText())
                         receivedFrom += index
                         println("Received results from worker $index")
 

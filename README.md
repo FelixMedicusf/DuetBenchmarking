@@ -1,7 +1,7 @@
 # DuetBenchmarking
 
 
-![Duet Benchmarking Architecture](GenericArchitecture.jpg)
+![Duet Benchmarking Architecture](https://user-images.githubusercontent.com/60180336/187493371-4957d94c-47b9-40e6-8b20-4ee5fddcf01f.jpg)
 
 
 ## Cloud Infrastructure 
@@ -25,7 +25,7 @@
 
 ## Conducting Experiments 
 - To run the benchmarking manager you need to specify following parameters: 
-![Benchmarking Manager Parameters]([BM_Parameters.jpg](https://tubcloud.tu-berlin.de/core/preview?fileId=3367519912&x=1920&y=1080&a=true.jpg)
+![Benchmarking Manager Parameters](https://user-images.githubusercontent.com/60180336/187493579-0e440eca-9b7b-45d2-87c4-ae0c007aeeb9.jpg)
 - You can either run the ``BenchmarkingClient\BenchmarkingManager\jar\BenchmarkingManager-1.0-SNAPSHOT.jar`` file with the respective parameters or run the ``main`` function in ``BenchmarkingClient\BenchmarkingManager\src\main\kotlin\Main.kt`` with the respective parameters. The default threads to sent queries to each version is set to 4 but can be changed in the code.
 
 

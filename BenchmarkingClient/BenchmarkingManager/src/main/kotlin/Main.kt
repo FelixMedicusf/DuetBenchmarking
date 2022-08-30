@@ -13,6 +13,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.lang.Math.ceil
+import java.nio.file.Path
+import java.nio.file.Paths
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -28,15 +30,8 @@ suspend fun main (vararg argv: String){
         .build()
         .parse(*argv);
 
-    println("workers --> ${args.workerIps}")
-
-    println("nodes --> ${args.cassandraNodeIps}")
-
-    println("Regions --> ${args.regions}")
-
-    println("Run --> ${args.run}")
-
-    if(args.run)args.workload="src\\main\\resources\\workloadA_1m\\run_operations.dat"
+    val numberOfThreadsPerWorkerVM = 4
+    
     println("Workload --> ${args.workload}")
 
     var pathToTransformedOps = ""
@@ -129,7 +124,7 @@ suspend fun main (vararg argv: String){
         }
 
 
-        val numberOfThreadsPerWorkerVM = 3
+
         client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }
@@ -154,8 +149,8 @@ suspend fun main (vararg argv: String){
                 if(index !in receivedFrom) {
                     val url = "http://$ip:8080"
                     println("Send getResults-Request to $url")
-                    val response1 = client.get("$url/api/getFirstResults")
-                    val response2 = client.get("$url/api/getSecondResults")
+                    val response1 = client.get("$url/api/getResultsFirst")
+                    val response2 = client.get("$url/api/getResultsSecond")
 
                     if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK) {
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response1.bodyAsText())
@@ -170,10 +165,16 @@ suspend fun main (vararg argv: String){
     }
 
     println("Received all measurements from all workers!")
+
     // write Results to file
+    val cwd = System.getProperty("user.dir")
+    var path = ""
+
+
     if(!args.run) {
         try {
-            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\run_measurements_200_000_3t.csv", totalMeasurements, args.regions)
+            path = Paths.get(cwd, "load_measurements.csv").toString()
+            writeMeasurementsToCsvFile(path.toString(), totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 
@@ -181,15 +182,13 @@ suspend fun main (vararg argv: String){
     }
     if(args.run) {
         try {
-            writeMeasurementsToCsvFile("C:\\Users\\Felix Medicus\\Dokumente\\run_measurements_200_000_3t.csv", totalMeasurements, args.regions)
+            path = Paths.get(cwd, "run_measurements.csv").toString()
+            writeMeasurementsToCsvFile(path.toString(), totalMeasurements, args.regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
 
         }
     }
-    if(!args.run) println("Wrote all measurements to file ~/Documents/DuetBenchmarking/load_measurements.dat")
-    if(args.run) println("Wrote all measurements to file ~/Documents/DuetBenchmarking/run_measurements.dat")
-
-
+    println("Wrote all measurements to file $path")
 
 }

@@ -8,7 +8,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-
+import java.nio.file.Paths
+var run = false
 var workerIps = listOf("34.76.252.7","34.105.161.168","34.141.79.78")
 var regions = listOf("europe-west1", "europe-west2", "europe-west3")
 suspend fun main() {
@@ -32,21 +33,14 @@ suspend fun main() {
                 if(index !in receivedFrom) {
                     val url = "http://$ip:8080"
                     println("Send getResults-Request to $url")
-                    val response1 = client.get("$url/api/getFirstResults")
-                    val response2 = client.get("$url/api/getSecondResults")
-                    val response3 = client.get("$url/api/getThirdResults")
-                    val response4 = client.get("$url/api/getForthResults")
-                    if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK &&
-                        response3.status == HttpStatusCode.OK && response4.status == HttpStatusCode.OK) {
+                    val response1 = client.get("$url/api/getResultsFirst")
+                    val response2 = client.get("$url/api/getResultsSecond")
+                    if (response1.status == HttpStatusCode.OK && response2.status == HttpStatusCode.OK) {
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response1.bodyAsText())
                         totalMeasurements += Json.decodeFromString<List<Measurement>>(response2.bodyAsText())
-                        totalMeasurements += Json.decodeFromString<List<Measurement>>(response3.bodyAsText())
-                        totalMeasurements += Json.decodeFromString<List<Measurement>>(response4.bodyAsText())
-
                         response1.discardRemaining()
                         response2.discardRemaining()
-                        response3.discardRemaining()
-                        response4.discardRemaining()
+
                         receivedFrom += index
                         println("Received results from worker $index")
 
@@ -55,16 +49,29 @@ suspend fun main() {
             }
         }
     }
-    println("Received all measurements from all workers!")
-    // write Results to file
+
+
+    val cwd = System.getProperty("user.dir")
+    var path = ""
+
+
+    if(!run) {
         try {
-            writeMeasurementsToCsvFile(
-                "C:\\Users\\Felix Medicus\\Desktop\\Thesis_MCC\\DuetBenchmarking\\Results\\Results\\load_measurements3.csv",
-                totalMeasurements, regions
-            )
+            path = Paths.get(cwd, "load_measurements.csv").toString()
+            writeMeasurementsToCsvFile(path, totalMeasurements, regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
         } catch (e: java.lang.Exception) {
-            e.printStackTrace()
+
         }
-    println("Wrote all measurements to Results Directory")
+    }
+    if(run) {
+        try {
+            path = Paths.get(cwd, "run_measurements.csv").toString()
+            writeMeasurementsToCsvFile(path, totalMeasurements, regions)
+            // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+        } catch (e: java.lang.Exception) {
+
+        }
+    }
+    println("Wrote all measurements to file $path")
 }

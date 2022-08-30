@@ -1,3 +1,4 @@
+import java.nio.file.Paths
 import kotlin.math.ceil
 
 fun getSutList(ipsAndAbsoluteOccurence:Map<Int, Double>, numberOfOperations: Int): List<Int>{
@@ -37,14 +38,30 @@ fun getSutList(ipsAndAbsoluteOccurence:Map<Int, Double>, numberOfOperations: Int
 }
 
 fun main(){
-    val ipIndexAndOccurence = mapOf<Int, Double>(0 to 4.5, 1 to 4.5, 2 to 1.0)
-    var start = System.nanoTime()
-    println(start)
-    for (i in 1..10 ){
-        println(i)
+
+    // write Results to file
+    val cwd = System.getProperty("user.dir")
+    var path = ""
+
+    if(false) {
+        try {
+            path = Paths.get(cwd, "load_measurements.csv").toString()
+
+            // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+        } catch (e: java.lang.Exception) {
+
+        }
+
     }
-    println(System.nanoTime()-start)
-    // println(getSutList(ipIndexAndOccurence, 1_000))
+    if(true) {
+        try {
+            path = Paths.get(cwd, "run_measurements.csv").toString()
 
+            // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+        } catch (e: java.lang.Exception) {
 
+        }
+
+    }
+    println("Wrote all measurements to file $path")
 }

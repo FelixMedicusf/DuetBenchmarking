@@ -31,7 +31,7 @@ suspend fun main (vararg argv: String){
         .parse(*argv);
 
     val numberOfThreadsPerWorkerVM = 4
-    
+
     println("Workload --> ${args.workload}")
 
     var pathToTransformedOps = ""
@@ -174,8 +174,8 @@ suspend fun main (vararg argv: String){
     if(!args.run) {
         try {
             path = Paths.get(cwd, "load_measurements.csv").toString()
-            writeMeasurementsToCsvFile(path.toString(), totalMeasurements, args.regions)
-            // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+            writeMeasurementsToCsvFile(path, totalMeasurements, args.regions)
+            println("Wrote all measurements to file $path")
         } catch (e: java.lang.Exception) {
 
         }
@@ -183,12 +183,12 @@ suspend fun main (vararg argv: String){
     if(args.run) {
         try {
             path = Paths.get(cwd, "run_measurements.csv").toString()
-            writeMeasurementsToCsvFile(path.toString(), totalMeasurements, args.regions)
-            // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+            writeMeasurementsToCsvFile(path, totalMeasurements, args.regions)
+            println("Wrote all measurements to file $path")
         } catch (e: java.lang.Exception) {
 
         }
     }
-    println("Wrote all measurements to file $path")
+
 
 }

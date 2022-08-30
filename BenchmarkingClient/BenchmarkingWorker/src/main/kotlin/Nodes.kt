@@ -1,3 +1,4 @@
+import java.io.File
 import java.nio.file.Paths
 import kotlin.math.ceil
 
@@ -42,6 +43,7 @@ fun main(){
     // write Results to file
     val cwd = System.getProperty("user.dir")
     var path = ""
+    var totalMeasurements = listOf(Measurement("String", "String", 4, 3L,4L,  "Deutschland"))
 
     if(false) {
         try {
@@ -56,12 +58,23 @@ fun main(){
     if(true) {
         try {
             path = Paths.get(cwd, "run_measurements.csv").toString()
-
-            // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+            writeMeasurementsToCsvFile(path,  totalMeasurements, listOf("ss", "bb"))
         } catch (e: java.lang.Exception) {
-
+            print("Eror")
         }
 
     }
     println("Wrote all measurements to file $path")
+}
+
+
+fun writeMeasurementsToCsvFile(fileName: String, measurements: List<Measurement>, regions: List<String>): Unit {
+    var file = File(fileName)
+    file.printWriter().use { out ->
+        out.println("workerId,queryType,queryId,sent,received,target-region")
+        for (measurement in measurements) {
+            //measurement.n = regions[(measurement.n).toInt()]
+            out.println(measurement)
+        }
+    }
 }

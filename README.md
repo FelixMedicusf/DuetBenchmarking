@@ -16,7 +16,7 @@
 - Prerequisite for running the the script ``CassandraClusters.sh`` is that you installed the gcloud command line tool 
 - To perform an A/A-test the Docker images used in the ``CassandraClusters.sh`` file must be the same. 
 - To perform an A/B-test you must change the docker image of one of the the clusters to deploy another version of Cassandra in each VM. 
-- To provision both Virtual Machines which were set up in the first step, you must first run the ``Scripts/CassandraClusters`` to setup the SUT in two clusters, followed by the ``Scripts/BenchmarkingWorkers`` using ``bash``.
+- To provision all Virtual Machines which were set up in the first step, you must first run the ``Scripts/CassandraClusters`` script to setup the SUT in two clusters, followed by the ``Scripts/BenchmarkingWorkers`` scripts using ``bash``. All VMs are either used to deploy database nodes or workers, based on VM instance's name.
 
 ## YCSB 
 - You need to install [YCSB](https://github.com/brianfrankcooper/YCSB), as it is used to generate database operations for the load and the run phases. 

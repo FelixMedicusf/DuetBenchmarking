@@ -38,8 +38,8 @@ fun getSutList(ipsAndAbsoluteOccurence:Map<Int, Double>, numberOfOperations: Int
     return ipAddressIndices
 }
 
+/*
 fun main(){
-
     // write Results to file
     val cwd = System.getProperty("user.dir")
     var path = ""
@@ -78,3 +78,5 @@ fun writeMeasurementsToCsvFile(fileName: String, measurements: List<Measurement>
         }
     }
 }
+
+ */

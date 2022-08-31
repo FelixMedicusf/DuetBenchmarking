@@ -60,6 +60,7 @@ suspend fun main() {
             path = Paths.get(cwd, "load_measurements.csv").toString()
             writeMeasurementsToCsvFile(path, totalMeasurements, regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+            println("Wrote all measurements to file $path")
         } catch (e: java.lang.Exception) {
 
         }
@@ -69,9 +70,10 @@ suspend fun main() {
             path = Paths.get(cwd, "run_measurements.csv").toString()
             writeMeasurementsToCsvFile(path, totalMeasurements, regions)
             // writeResultsToFile("~/Documents/DuetBenchmarking/measurements.dat", totalMeasurements)
+            println("Wrote all measurements to file $path")
         } catch (e: java.lang.Exception) {
 
         }
     }
-    println("Wrote all measurements to file $path")
+
 }

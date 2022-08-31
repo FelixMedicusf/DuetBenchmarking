@@ -43,19 +43,19 @@ suspend fun main (vararg argv: String){
     var genericQueriesList: List<String>
 
     if(!args.run) {
-        genericQueriesList = returnQueryListFromFile(args.workload, 1_000_000)
+        genericQueriesList = returnQueryListFromFile(args.workload)
         writeTransformedOperationsToFile(pathToTransformedOps, genericQueriesList,
             ca::transformLoadOperations)
     }
     if(args.run){
-        genericQueriesList = returnQueryListFromFile(args.workload, 1_000_000)
+        genericQueriesList = returnQueryListFromFile(args.workload)
         writeTransformedOperationsToFile(pathToTransformedOps, genericQueriesList,
             ca::transformRunOperations)
     }
 
     genericQueriesList = listOf()
 
-    var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps, 1_000_000)
+    var cassandraQueriesList = returnQueryListFromFile(pathToTransformedOps)
 
     var queriesWithIds = assignIdsToQueries(cassandraQueriesList)
 
@@ -89,21 +89,21 @@ suspend fun main (vararg argv: String){
 
         val url = "http://$ip:8080"
 
-        client.get("$url/api/setId?id=${index+1}") {
+        client.post("$url/api/setId?id=${index+1}") {
 
         }
 
         var workerId = client.get("$url/api/getId").body<String>()
 
         // Send every #{node}th transformed query to the worker
-        client.post("$url/api/setFirstWorkload") {
+        client.post("$url/api/setWorkloadFirst") {
             var chunk = kotlin.math.ceil((queriesPerWorkerWithIds[index].size).toDouble()/2).toInt()
             var content = Json.encodeToString(queriesPerWorkerWithIds[index].chunked(chunk)[0])
             setBody(content)
             content = ""
         }
 
-        client.post("$url/api/setSecondWorkload") {
+        client.post("$url/api/setWorkloadSecond") {
             var chunk = kotlin.math.ceil((queriesPerWorkerWithIds[index].size).toDouble()/2).toInt()
             var content = Json.encodeToString(queriesPerWorkerWithIds[index].chunked(chunk)[1])
             setBody(content)
@@ -123,9 +123,8 @@ suspend fun main (vararg argv: String){
             setBody(content)
         }
 
+        client.post("$url/api/setThreads?threads=$numberOfThreadsPerWorkerVM")
 
-
-        client.get("$url/api/setThreads?threads=${numberOfThreadsPerWorkerVM}")
 
     }
 
@@ -166,10 +165,11 @@ suspend fun main (vararg argv: String){
 
     println("Received all measurements from all workers!")
 
+
+
     // write Results to file
     val cwd = System.getProperty("user.dir")
     var path = ""
-
 
     if(!args.run) {
         try {
@@ -192,3 +192,4 @@ suspend fun main (vararg argv: String){
 
 
 }
+

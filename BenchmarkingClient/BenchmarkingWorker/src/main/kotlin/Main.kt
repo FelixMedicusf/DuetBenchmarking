@@ -77,7 +77,7 @@ fun main() {
 
     embeddedServer(Netty, port = 8080){
 
-        println("Maximum heap size -> ${Runtime.getRuntime().maxMemory()*0.000001}")
+        // println("Maximum heap size -> ${Runtime.getRuntime().maxMemory()*0.000001}")
 
        routing {
            get("api/getStatus"){
@@ -208,15 +208,19 @@ fun main() {
                    for (i in 1 .. numberOfThreadsPerVersion){
                        
                         val workloadForThread = divideListForThreads(workload!!)?.get(i-1) ?: emptyList()
-                        val sutList = getSutList(
+
+                       /*
+                       val sutList = getSutList(
                             ipIndexAndOccurrence,
                             workloadForThread.size
                             )
+                       */
 
-                        val workerA = cassandraWorkerThread("w${id}-vA", socketsA[id-1], sutList,
+
+                        val workerA = cassandraWorkerThread("w${id}-vA", socketsA[id-1],
                             workloadForThread, region, latch, )
 
-                        val workerB = cassandraWorkerThread("w${id}-vB", socketsB[id-1], sutList,
+                        val workerB = cassandraWorkerThread("w${id}-vB", socketsB[id-1],
                            workloadForThread, region, latch, )
 
                        // Create Threadpool if more than 1 Thread per Version is necessary.

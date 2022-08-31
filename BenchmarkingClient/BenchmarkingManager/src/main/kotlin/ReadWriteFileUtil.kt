@@ -31,7 +31,7 @@ fun returnListFromInsertData (fileName : String) : List<String> {
     return lines;
 }
 
-fun returnQueryListFromFile(fileName: String, size: Int) : List<String> {
+fun returnQueryListFromFile(fileName: String) : List<String> {
     val lines: MutableList<String> = mutableListOf()
     File(fileName).readLines().forEach { line ->
         if (line.startsWith("READ") || line.startsWith("UPDATE") || line.startsWith("INSERT")
@@ -39,7 +39,7 @@ fun returnQueryListFromFile(fileName: String, size: Int) : List<String> {
             lines.add(line)
         }
     }
-    return lines.subList(0, size);
+    return lines
 }
 
 fun writeMeasurementsToCsvFile(fileName: String, measurements: List<Measurement>, regions: List<String>): Unit {

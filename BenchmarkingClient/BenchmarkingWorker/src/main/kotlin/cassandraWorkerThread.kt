@@ -18,7 +18,7 @@ var latencies: MutableList<Measurement> = Collections.synchronizedList(mutableLi
 
 
 class cassandraWorkerThread (
-    private val workerName:String, private val socket: InetSocketAddress, val ipIndices: List<Int>,
+    private val workerName:String, private val socket: InetSocketAddress,
     val workload: List<Pair<Int, String>>, private val region: String,
     private val latch: CountDownLatch): Thread(){
 

@@ -5,7 +5,7 @@
 
 
 ## Cloud Infrastructure 
-- Terraform needs to authenticate against the Google Cloud Platform. Currently we are using a token-based authentication. 
+- Terraform needs to authenticate against the Google Cloud Platform. Our current implementation is using a token-based authentication. 
 - First you need to setup the cloud infrastructure for both clusters of the SUT. To do so, change into the ``DuetBenchmarking/ExperimentSetup/Terraform/SUT`` directory and run ``terraform init`` followed by ``terraform apply --auto-approve``. 
 - After that you need to set up the VMs in which the *Benchmarking Workers* are deployed. To do so, change into the ``DuetBenchmarking/ExperimentSetup/Terraform/BenchmarkingWorkers`` directory and run ``terraform init`` followed by ``terraform apply --auto-approve``. 
 - After the benchmark was conducted, you can tear down the cloud infrastructure by applying ``terraform destroy  --auto-approve`` in the respective directory.

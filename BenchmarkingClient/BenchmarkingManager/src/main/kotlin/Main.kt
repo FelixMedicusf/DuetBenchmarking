@@ -21,7 +21,7 @@ import java.nio.file.Paths
 suspend fun main (vararg argv: String){
 
 
-    println("Maximum heap size -> ${Runtime.getRuntime().maxMemory()*0.000001}")
+    // println("Maximum heap size -> ${Runtime.getRuntime().maxMemory()*0.000001}")
 
 
     val args = Args()
